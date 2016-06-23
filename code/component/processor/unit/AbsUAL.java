@@ -1,0 +1,35 @@
+package component.processor.unit;
+
+import component.Clockable;
+
+/**
+ * permet d'implementer les UAL
+ * @author le_kr_000
+ *
+ */
+public abstract class AbsUAL implements Clockable {
+
+	
+	
+	/**
+	 * une entrée de l'UAL
+	 */
+	public Registre e1;
+	/**
+	 * une entrée de l'UAL
+	 */
+	public Registre e2;
+	/**
+	 * la sortie de l'UAL
+	 */
+	public Registre s;
+	/**
+	 * l'instruction à effectuer lors du prochain tick d'horloge
+	 */
+	public int instruction;
+	/**
+	 * les flags levés par l'opération du tick
+	 */
+	public boolean[] flags;
+
+}

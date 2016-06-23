@@ -34,19 +34,17 @@ public class SquelInstr {
 	public static final int OR = 0x3500;
 	public static final int AND = 0x3600;
 	public static final int XOR = 0x3700;
-	public static final int RORL = 0x3800;
-	public static final int RORR = 0x3900;
-	public static final int ROLL = 0x3A00;
-	public static final int ROLR = 0x3B00;
-	public static final int EQ = 0x3C00;
-	public static final int GT = 0x3D00;
-	public static final int LT = 0x3E00;
+	public static final int CMP = 0x3C00;
 	
 	//unaire
 
 	public static final int NOT = 0x3F00;
 	public static final int INC = 0x3F10;
 	public static final int DEC = 0x3F20;
+	public static final int ROL = 0x3F30;
+	public static final int ROR = 0x3F40;
+	public static final int SHL = 0x3F50;
+	public static final int SHR = 0x3F60;
 	//trinaire
 	
 	//registres
