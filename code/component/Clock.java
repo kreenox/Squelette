@@ -4,25 +4,25 @@ import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import javax.swing.JPanel;
+//import javax.swing.JPanel; a remettre avec getUI
 
 
 /**
  * cette classe sert à génerer des ticks d'horloge à interval réguliers.
- * <br/>
  * a chaque tick elle appelle toutes les méthodes <i>work()</i> des composant auquels elle est connecté
  * @author Fabien ANXA
  * @version 0.0.0
  * @since 0.0.0
  *
  */
-public class Clock extends AbsComponent
+public class Clock implements Clockable 
 {
 	
 	private int ticksize;
 	private long lasttick;
 	private boolean enslaved;
 	private boolean paused;
+	private ArrayList<Clockable> connected;
 	
 	/**
 	 * créé une hologe
@@ -30,7 +30,7 @@ public class Clock extends AbsComponent
 	public Clock()
 	{
 		ticksize = 0;
-		connected = new ArrayList<AbsComponent>();
+		connected = new ArrayList<Clockable>();
 		enslaved = false;
 	}
 	/**
@@ -42,7 +42,7 @@ public class Clock extends AbsComponent
 		if(ticks < 0)
 			throw new InvalidParameterException();
 		ticksize = ticks;
-		connected = new ArrayList<AbsComponent>();
+		connected = new ArrayList<Clockable>();
 		enslaved = false;
 	}
 	//set
@@ -63,6 +63,11 @@ public class Clock extends AbsComponent
 	 */
 	public int getTickSize()
 	{return ticksize;}
+	//a décommenter plus tard
+	/*public JPanel getUI() {
+		return null;
+		
+	}*/
 	//action
 	/**
 	 * met imediatement l'horloge en pause, elle n'emmet pas de tick
@@ -75,7 +80,36 @@ public class Clock extends AbsComponent
 	public void unpause()
 	{paused = false;}
 	/**
+	 * permet de connecter un objet à cette horloge.
+	 * l'horloge appelle la méthode <i>work()</i> de tout le object auxquel elle est connectée
+	 * @param c l'objet à connecter
+	 */
+	public void connectTo(Clockable c) {
+		if(connected.contains(c))
+			;//throw
+		connected.add(c);
+	}
+	/**
+	 * permet de déconnecter tous les objet de cette horloge
+	 */
+	public void disconnect() {
+		connected.clear();
+		
+	}
+	/**
+	 * permet de d&connecter un objet de l'horloge
+	 * @param c l'objet à déconnecter
+	 * @throws NonConnectedException est envoyé si l'objet n'est pas encor connecté à l'horloge
+	 */
+	public void disconnectFrom(AbsComponent c) throws NonConnectedException {
+		if(!connected.contains(c))
+			throw new NonConnectedException();
+		connected.remove(c);
+		
+	}
+	/**
 	 * synchronize les ticks d'une horloge sur ceux de cette horloge 
+	 * @param c l'horloge a synchroniser
 	 */
 	public void enslave(Clock c)
 	{
@@ -89,12 +123,14 @@ public class Clock extends AbsComponent
 	 */
 	public void tick()
 	{
-		Iterator<AbsComponent> it = connected.iterator();
+		System.out.println("tick emmited");
+		Iterator<Clockable> it = connected.iterator();
 		while(it.hasNext())
 			it.next().work();
 	}
 	/**
 	 * l'horloge ne synchronise plus les ticks d'une autre horloge
+	 * @param c l'horloge à libérer
 	 * @throws NonConnectedException si l'horloge n'est pas synchronisée sur celle-ci
 	 */
 	public void unslave(Clock c) throws NonConnectedException
@@ -111,24 +147,6 @@ public class Clock extends AbsComponent
 	//question
 	//redefinition
 	@Override
-	public void connectTo(AbsComponent c) {
-		if(connected.contains(c))
-			;//throw
-		connected.add(c);
-	}
-	@Override
-	public void disconnect() {
-		connected.clear();
-		
-	}
-	@Override
-	public void disconnectFrom(AbsComponent c) throws NonConnectedException {
-		if(!connected.contains(c))
-			throw new NonConnectedException();
-		connected.remove(c);
-		
-	}
-	@Override
 	public boolean equals(Object o)
 	{
 		if(o == this)
@@ -143,11 +161,6 @@ public class Clock extends AbsComponent
 							return true;
 		}
 		return false;
-	}
-	@Override
-	public JPanel getUI() {
-		return null;
-		
 	}
 	@Override
 	public void work() {//normalement c'est bon
