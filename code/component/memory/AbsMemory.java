@@ -12,10 +12,27 @@ import component.AbsComponent;
  */
 public abstract class AbsMemory extends AbsComponent {
 
+	/**
+	 * la memoire ne doit effectuer aucune action
+	 */
 	public static final int NOOP = 0x0000;
+	/**
+	 * la memoire doit effecture une lecture
+	 */
 	public static final int READ = 0x0001;
+	/**
+	 * la memoire doit effectuer une ecriture
+	 */
 	public static final int WRITE = 0x0002;
+	/**
+	 * la memoire doit effectuer un reset
+	 */
 	public static final int RST = 0x0004;
+	/**
+	 * la memoire à reçu une adresse invalide
+	 */
+	public static final int ADROUT = 0x0001;
+	
 	
 	//set
 	//get
