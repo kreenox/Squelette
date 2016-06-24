@@ -34,7 +34,7 @@ public class SquelInstr {
 	public static final int OR = 0x3500;
 	public static final int AND = 0x3600;
 	public static final int XOR = 0x3700;
-	public static final int CMP = 0x3C00;
+	public static final int CMP = 0x3800;
 	
 	//unaire
 
@@ -48,21 +48,21 @@ public class SquelInstr {
 	//trinaire
 	
 	//registres
-	public static final int R0 = 0x0000;
-	public static final int R1 = 0x0000;
-	public static final int R2 = 0x0000;
-	public static final int R3 = 0x0000;
-	public static final int R4 = 0x0000;
-	public static final int R5 = 0x0000;
-	public static final int R6 = 0x0000;
-	public static final int R7 = 0x0000;
-	public static final int RBA = 0x0000;//bus d'adresse
-	public static final int RBD = 0x0000;//bus de données
-	public static final int RBC = 0x0000;//bus de controle
-	public static final int RH = 0x0000;//registre d'horloge
-	public static final int PP = 0x0000;//Pointeur de pile
-	public static final int RI = 0x0000;//registre d'intruction
-	public static final int ME = 0x0000;//mot d'état
-	public static final int CO = 0x0000;//compteur ordinal
+	public static final int R0 = 0x0;
+	public static final int R1 = 0x1;
+	public static final int R2 = 0x2;
+	public static final int R3 = 0x3;
+	public static final int R4 = 0x4;
+	public static final int R5 = 0x5;
+	public static final int R6 = 0x6;
+	public static final int R7 = 0x7;
+	public static final int RBA = 0x8;//bus d'adresse
+	public static final int RBD = 0x9;//bus de données
+	public static final int RBC = 0xA;//bus de controle
+	public static final int RH = 0xB;//registre d'horloge
+	public static final int PP = 0xC;//Pointeur de pile
+	public static final int RI = 0xD;//registre d'intruction
+	public static final int ME = 0xE;//mot d'état
+	public static final int CO = 0xF;//compteur ordinal
 	
 }
