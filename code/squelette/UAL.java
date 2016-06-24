@@ -1,6 +1,7 @@
-package component.processor.unit;
+package squelette;
 
-import component.processor.SquelInstr;
+import component.processor.unit.AbsUAL;
+import component.processor.unit.Registre;
 
 public class UAL extends AbsUAL {
 

@@ -1,9 +1,10 @@
-package component.bus;
+package squelette;
 
 import javax.swing.JPanel;
 
 import component.AbsComponent;
 import component.NonConnectedException;
+import component.bus.AbsBus;
 
 
 /**

@@ -1,4 +1,4 @@
-package component.processor;
+package squelette;
 
 public class SquelInstr {
 
