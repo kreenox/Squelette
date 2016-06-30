@@ -23,13 +23,24 @@ public class Sequenceur {
 				if(b.isTransmiting() && b.getTransmitedAdresse() == SquelAdr.PROC)
 				{
 					tab[SquelInstr.RI].write(b.getTransmitedData());
-					d.decode(tab[SquelInstr.RI].read());
+					d.decode(tab[SquelInstr.RI].read());//decoder l'instruction
+					//executer l'instruction
 					if((d.getInstruction() & 0xF000) == 0x3000)//si c'est une instruction de l'ual
 					{
 						u.e1.write(tab[d.getR1()].read());
 						u.e2.write(tab[d.getR2()].read());
 						u.work();
 						tab[d.getR1()].write(u.s.read());
+						//mise a jour du mot d'état
+						int resflag = 0x0000;
+						if(u.getZeroFlag())
+							resflag |= 0x0001;
+						if(u.getNegativeFlag())
+							resflag |= 0x0002;
+						if(u.getDebordementFlag())
+							resflag |= 0x0004;
+						tab[SquelInstr.ME].write((tab[SquelInstr.ME].read() & 0xFFF8) | resflag);
+						incRegistre(tab[SquelInstr.CO]);//on augmente le compteur ordinal
 					}
 					else
 					{
@@ -102,9 +113,6 @@ public class Sequenceur {
 					
 			}
 		}
-		//decoder l'instruction
-		//executer l'instruction
-		//augmenter compteur ordinal
 		
 	}
 	
