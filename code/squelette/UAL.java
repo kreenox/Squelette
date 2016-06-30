@@ -6,18 +6,9 @@ import component.processor.unit.Registre;
 public class UAL extends AbsUAL {
 
 	//flags
-		/**
-		 * flag de débordement
-		 */
-		public static final int DEB = 0;//il y a une retenue
-		/**
-		 * flag de valeur negative
-		 */
-		public static final int NEG = 1;//la valeur dans sortie est negative
-		/**
-		 * flag de valeur zero
-		 */
-		public static final int ZERO = 2;//la valeur dans sortie est nulle
+		private boolean  DEB = false;//il y a une retenue
+		private boolean NEG = false;//la valeur dans sortie est negative
+		private boolean ZERO = false;//la valeur dans sortie est nulle
 		
 		private int mask = 0xFFFF;
 		
@@ -27,10 +18,19 @@ public class UAL extends AbsUAL {
 		e2 = new Registre();
 		s = new Registre();
 		instruction = 0x0;
-		flags = new boolean[3];
-		for(int n = 0; n < flags.length; n++)
-			flags[n] = false;
+		DEB = NEG = ZERO = false;
 	}
+	//set
+	//get
+	public boolean getDebordementFlag()
+	{return DEB;}
+	public boolean getNegativeFlag()
+	{return NEG;}
+	public boolean getZeroFlag()
+	{return ZERO;}
+	//action
+	//question
+	//redefinition
 	@Override
 	public void work() {
 
@@ -105,7 +105,7 @@ public class UAL extends AbsUAL {
 		case SquelInstr.SHL://a revoir
 			tempres = e1.read() << 1;
 			testflag(tempres);
-			if(flags[DEB])
+			if(DEB)
 				tempres = tempres | 0x0001;
 			s.write(tempres & mask);
 			break;
@@ -133,16 +133,16 @@ public class UAL extends AbsUAL {
 	private void testflag(int val)
 	{
 		if(val == 0)
-			flags[ZERO] = true;
-		else flags[ZERO] = false;
+			ZERO = true;
+		else ZERO = false;
 
 		if((val & mask) != 0)
-			flags[DEB] = true;
-		else flags[DEB] = false;
+			DEB = true;
+		else DEB = false;
 
 		if(val < 0)
-			flags[NEG] = true;
-		else flags[NEG] = false;
+			NEG = true;
+		else NEG = false;
 	}
 
 }

@@ -27,9 +27,5 @@ public abstract class AbsUAL implements Clockable {
 	 * l'instruction à effectuer lors du prochain tick d'horloge
 	 */
 	public int instruction;
-	/**
-	 * les flags levés par l'opération du tick
-	 */
-	public boolean[] flags;
 
 }
