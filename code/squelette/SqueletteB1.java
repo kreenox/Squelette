@@ -8,7 +8,19 @@ import component.NonConnectedException;
 import component.processor.AbsProcessor;
 import component.processor.unit.Registre;
 
-public class SquelProc extends AbsProcessor {
+/**
+ * le premier build du processeur Squelette
+ * pour l'utilisation du processeur voir la documentation fournie a part
+ * <u>caractéristiques de ce processeur :</u>
+ * <ul>
+ * 	<li>8 registre généreaux</li>
+ * </ul>
+ * 
+ * @author Fabien ANXA
+ * @version B1.0.0.0
+ *
+ */
+public class SqueletteB1 extends AbsProcessor {
 
 	private UAL ual;
 	private Decodeur dec;
@@ -20,7 +32,7 @@ public class SquelProc extends AbsProcessor {
 	private int boot = 0;
 	private final int READY = 15;//temporaire
 	
-	public  SquelProc()
+	public  SqueletteB1()
 	{
 		tab = new Registre[16];
 		for(int n = 0; n < tab.length; n++)
