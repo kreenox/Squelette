@@ -1,13 +1,12 @@
 package component.processor.unit;
 
-import component.Clockable;
 
 /**
  * permet d'implementer les UAL
  * @author le_kr_000
  *
  */
-public abstract class AbsUAL implements Clockable {
+public abstract class AbsUAL {
 
 	
 	
