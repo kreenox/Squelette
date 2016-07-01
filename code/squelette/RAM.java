@@ -93,14 +93,14 @@ public class RAM extends AbsMemory {
 			try {throw new NonConnectedException();} catch (NonConnectedException e) {e.printStackTrace();}
 		if(bus.isTransmiting())
 		{
-			if(bus.getTransmitedAdresse() == SquelAdr.RAM)//a changer plus tard
+			if(bus.getTransmitedAdresse() == SquelAdr.RAM)
 			{
 				switch(bus.getTransmitedControl())
 				{
 				case READ://action de lecture
 					nextBusCall = new int[3];
 					nextBusCall[0] = SquelAdr.PROC;
-					adr = bus.getTransmitedAdresse();
+					adr = bus.getTransmitedData();
 					try {
 						nextBusCall[1] = read(adr);
 						nextBusCall[2] = 0x0;
