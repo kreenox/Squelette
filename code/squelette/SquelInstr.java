@@ -23,7 +23,7 @@ public class SquelInstr {
 	public static final int SAVE = 0x2100;
 	public static final int PUSH = 0x2F00;
 	public static final int POP = 0x2F10;
-	public static final int SET = 0x2F30;
+	public static final int SET = 0x2F20;
 	//UAL
 	//binaire
 	public static final int ADD = 0x3000;
