@@ -23,6 +23,7 @@ public class Clock implements Clockable
 	private boolean enslaved;
 	private boolean paused;
 	private ArrayList<Clockable> connected;
+	private Thread t;
 	
 	/**
 	 * créé une hologe
@@ -116,8 +117,18 @@ public class Clock implements Clockable
 		c.setEnslaved(true);
 		this.connected.add(c);
 	}
+	/**
+	 * met en marche l'horloge
+	 */
 	public void start()
-	{work();}
+	{
+		t = new Thread(){
+			public void run(){
+				work();
+			}
+		};
+		t.start();
+	}
 	/**
 	 * appelle les methodes work de tout les composants connectés à l'horloge
 	 */
