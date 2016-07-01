@@ -19,19 +19,27 @@ public abstract class AbsMemory extends AbsComponent {
 	/**
 	 * la memoire doit effecture une lecture
 	 */
-	public static final int READ = 0x0001;
+	public static final int READ = 0x1000;
 	/**
 	 * la memoire doit effectuer une ecriture
 	 */
-	public static final int WRITE = 0x0002;
+	public static final int WRITE = 0x2000;
 	/**
 	 * la memoire doit effectuer un reset
 	 */
-	public static final int RST = 0x0004;
+	public static final int RST = 0x3000;
+	/**
+	 * envoi le contenu de la mémoire à un autre composant
+	 */
+	public static final int SEND = 0x4000;
 	/**
 	 * la memoire à reçu une adresse invalide
 	 */
 	public static final int ADROUT = 0x0001;
+	/**
+	 * indique la fin de la copie de la mémoire
+	 */
+	public static final int CPEND = 0x0002;
 	
 	
 	//set
