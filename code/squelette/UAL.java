@@ -3,7 +3,7 @@ package squelette;
 import component.processor.unit.AbsUAL;
 import component.processor.unit.Registre;
 
-public class UAL extends AbsUAL {
+public class UAL extends AbsUAL{
 
 	//flags
 		private boolean  DEB = false;//il y a une retenue
@@ -29,106 +29,106 @@ public class UAL extends AbsUAL {
 	public boolean getZeroFlag()
 	{return ZERO;}
 	//action
-	//question
-	//redefinition
-	@Override
 	public void work() {
 
-		int tempres;
-		switch(instruction)
+	int tempres;
+	switch(instruction)
+	{
+	case SquelInstr.ADD:
+		tempres = e1.read() + e2.read();
+		testflag(tempres);
+		s.write(tempres & mask);
+		break;
+	case SquelInstr.SUB:
+		tempres = e1.read() - e2.read();
+		testflag(tempres);
+		s.write(tempres & mask);
+		break;
+	case SquelInstr.MUL:
+		tempres = e1.read() * e2.read();
+		testflag(tempres);
+		s.write(tempres & mask);
+		break;
+	case SquelInstr.DIV:
+		tempres = e1.read() / e2.read();
+		testflag(tempres);
+		s.write(tempres & mask);
+		break;
+	case SquelInstr.MOD:
+		tempres = e1.read() % e2.read();
+		testflag(tempres);
+		s.write(tempres & mask);
+		break;
+	case SquelInstr.AND:
+		tempres = e1.read() & e2.read();
+		testflag(tempres);
+		s.write(tempres & mask);
+		break;
+	case SquelInstr.OR:
+		tempres = e1.read() | e2.read();
+		testflag(tempres);
+		s.write(tempres & mask);
+		break;
+	case SquelInstr.XOR:
+		tempres = ~(e1.read()) & e2.read() | e1.read() & ~(e2.read());
+		testflag(tempres);
+		s.write(tempres & mask);
+		break;
+	case SquelInstr.NOT:
+		tempres = ~e1.read();
+		testflag(tempres);
+		s.write(tempres & mask);
+		break;
+	case SquelInstr.INC:
+		tempres = e1.read() + 1;
+		testflag(tempres);
+		s.write(tempres & mask);
+		break;
+	case SquelInstr.DEC:
+		tempres = e1.read() - 1;
+		testflag(tempres);
+		s.write(tempres & mask);
+		break;
+	case SquelInstr.ROL:
+		tempres = e1.read() << 1;
+		testflag(tempres);
+		s.write(tempres & mask);
+		break;
+	case SquelInstr.ROR:
+		tempres = e1.read() >>> 1;
+		testflag(tempres);
+		s.write(tempres & mask);
+		break;
+	case SquelInstr.SHL://a revoir
+		tempres = e1.read() << 1;
+		testflag(tempres);
+		if(DEB)
+			tempres = tempres | 0x0001;
+		s.write(tempres & mask);
+		break;
+	case SquelInstr.SHR://a revoir
+		tempres = e1.read();
+		if((tempres & 0x0001) != 0)
 		{
-		case SquelInstr.ADD:
-			tempres = e1.read() + e2.read();
-			testflag(tempres);
-			s.write(tempres & mask);
+			tempres = tempres >>> 1;
+			tempres = tempres | 0x8000;
+		}else tempres = tempres >>> 1;
+		testflag(tempres);
+		s.write(tempres & mask);
+		break;
+	case SquelInstr.CMP:
+		tempres = e1.read() - e2.read();
+		testflag(tempres);
+		break;
+		
+		default:
 			break;
-		case SquelInstr.SUB:
-			tempres = e1.read() - e2.read();
-			testflag(tempres);
-			s.write(tempres & mask);
-			break;
-		case SquelInstr.MUL:
-			tempres = e1.read() * e2.read();
-			testflag(tempres);
-			s.write(tempres & mask);
-			break;
-		case SquelInstr.DIV:
-			tempres = e1.read() / e2.read();
-			testflag(tempres);
-			s.write(tempres & mask);
-			break;
-		case SquelInstr.MOD:
-			tempres = e1.read() % e2.read();
-			testflag(tempres);
-			s.write(tempres & mask);
-			break;
-		case SquelInstr.AND:
-			tempres = e1.read() & e2.read();
-			testflag(tempres);
-			s.write(tempres & mask);
-			break;
-		case SquelInstr.OR:
-			tempres = e1.read() | e2.read();
-			testflag(tempres);
-			s.write(tempres & mask);
-			break;
-		case SquelInstr.XOR:
-			tempres = ~(e1.read()) & e2.read() | e1.read() & ~(e2.read());
-			testflag(tempres);
-			s.write(tempres & mask);
-			break;
-		case SquelInstr.NOT:
-			tempres = ~e1.read();
-			testflag(tempres);
-			s.write(tempres & mask);
-			break;
-		case SquelInstr.INC:
-			tempres = e1.read() + 1;
-			testflag(tempres);
-			s.write(tempres & mask);
-			break;
-		case SquelInstr.DEC:
-			tempres = e1.read() - 1;
-			testflag(tempres);
-			s.write(tempres & mask);
-			break;
-		case SquelInstr.ROL:
-			tempres = e1.read() << 1;
-			testflag(tempres);
-			s.write(tempres & mask);
-			break;
-		case SquelInstr.ROR:
-			tempres = e1.read() >>> 1;
-			testflag(tempres);
-			s.write(tempres & mask);
-			break;
-		case SquelInstr.SHL://a revoir
-			tempres = e1.read() << 1;
-			testflag(tempres);
-			if(DEB)
-				tempres = tempres | 0x0001;
-			s.write(tempres & mask);
-			break;
-		case SquelInstr.SHR://a revoir
-			tempres = e1.read();
-			if((tempres & 0x0001) != 0)
-			{
-				tempres = tempres >>> 1;
-				tempres = tempres | 0x8000;
-			}else tempres = tempres >>> 1;
-			testflag(tempres);
-			s.write(tempres & mask);
-			break;
-		case SquelInstr.CMP:
-			tempres = e1.read() - e2.read();
-			testflag(tempres);
-			break;
-			
-			default:
-				break;
-		}
-
 	}
+
+}
+	//question
+	//redefinition
+	
 	
 	private void testflag(int val)
 	{

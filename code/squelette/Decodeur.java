@@ -28,7 +28,7 @@ public class Decodeur extends AbsDecodeur{
 		else
 		{
 			instruction = instr & 0xFF00;
-			r1 = instr & 0x00F0;
+			r1 = (instr & 0x00F0) >> 4;
 			r2 = instr & 0x000F;
 		}
 		
