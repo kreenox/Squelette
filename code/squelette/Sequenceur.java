@@ -1,6 +1,5 @@
 package squelette;
 
-import component.Clockable;
 import component.memory.AbsMemory;
 import component.processor.unit.Registre;
 
