@@ -4,7 +4,7 @@ import component.Clockable;
 import component.memory.AbsMemory;
 import component.processor.unit.Registre;
 
-public class Sequenceur implements Clockable{
+public class Sequenceur{
 
 	private int state = 0;
 	private final int ATT = 0x0000;
@@ -231,9 +231,5 @@ public class Sequenceur implements Clockable{
 	}*/
 
 	//redefinitions
-	@Override
-	public void work() {
-		// TODO Auto-generated method stub
-
-	}
+	
 }
