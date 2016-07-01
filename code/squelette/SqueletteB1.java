@@ -5,6 +5,7 @@ import javax.swing.JPanel;
 import component.AbsComponent;
 import component.Clock;
 import component.NonConnectedException;
+import component.memory.AbsMemory;
 import component.processor.AbsProcessor;
 import component.processor.unit.Registre;
 
@@ -24,6 +25,7 @@ public class SqueletteB1 extends AbsProcessor {
 
 	private UAL ual;
 	private Decodeur dec;
+	private Sequenceur seq;
 	private Clock ck;
 	private Registre[] tab;
 	private Registre intmask;
@@ -36,20 +38,22 @@ public class SqueletteB1 extends AbsProcessor {
 	{
 		tab = new Registre[16];
 		for(int n = 0; n < tab.length; n++)
-			tab[n].write(0x0000);
+			tab[n] = new Registre();
 		intmask = new Registre();
 		ual = new UAL();
 		dec = new Decodeur();
 		ck = new Clock(500);
-		ck.connectTo(ual);
+		seq = new Sequenceur();
+		ck.connectTo(this);
 	}
 	@Override
 	public void work() {
+		
 		if(boot != READY)
 			bootSeq();
 		else
 		{
-			
+			seq.work(bus, tab, intmask, ual, dec);
 		}
 		
 		
@@ -64,22 +68,27 @@ public class SqueletteB1 extends AbsProcessor {
 			intmask.write(0x0);
 			boot++;
 		}
-		if(boot == 1)
+		else if(boot == 1)
 		{
-			//recopier le contenu de la PROM dans la RAM
+			bus.call(SquelAdr.ROM, SquelAdr.RAM, AbsMemory.SEND);
+			boot++;
 		}
-		if(boot == 2)
+		else if(boot == 2){
+			if(bus.isTransmiting() && bus.getTransmitedAdresse() == SquelAdr.PROC && bus.getTransmitedData() == AbsMemory.CPEND)
+				boot++;
+		}
+		else if(boot == 3)
 		{
 			for(int n = 0; n < tab.length; n++)
 				tab[n].write(0x0000);
 			boot++;
 		}
-		if(boot == 3)
+		else if(boot == 4)
 		{
-			tab[SquelInstr.CP].write(0x0100);
+			tab[SquelInstr.CO].write(0x0100);
 			boot++;
 		}
-		if(boot == 4)
+		else if(boot == 5)
 		{
 			intmask.write(0xFFFF);
 			boot = READY;

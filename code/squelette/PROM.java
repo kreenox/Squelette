@@ -20,10 +20,17 @@ public class PROM extends AbsMemory {
 	public int[] nextAct;
 	public Bus bus;
 	
+	private boolean sendall;
+	private int adrloc;
+	private int adrcomp;
+	
 	public PROM(String path) throws FileNotFoundException , IOException
 	{
 		load(path);
 		nextAct = null;
+		sendall = false;
+		adrcomp = 0;
+		adrloc = 0;
 	}
 	
 	@Override
@@ -63,11 +70,12 @@ public class PROM extends AbsMemory {
 	public void work() {
 		if(bus == null)
 			try {throw new NonConnectedException();} catch (NonConnectedException e1) {e1.printStackTrace();}
-		if(bus.isTransmiting())
+		if(bus.isTransmiting() && !sendall){
 			if(bus.getTransmitedAdresse() == SquelAdr.ROM)
 			{
-				if(bus.getTransmitedControl() == READ)
+				switch(bus.getTransmitedControl() & 0xF000)
 				{
+				case READ:
 					nextAct = new int[3];
 					nextAct[0] = SquelAdr.PROC;
 					try {
@@ -79,8 +87,41 @@ public class PROM extends AbsMemory {
 								nextAct[2] = ADROUT;
 								
 						}
+					break;
+				case SEND:
+					sendall = true;
+					adrloc = 0;
+					adrcomp = bus.getTransmitedData();
+					break;
+					default:
+						break;
+				}
+				
+			}
+		}
+		else if(sendall)
+		{
+			if(adrloc >= size)
+			{
+				if(!bus.isUsed())
+				{
+					sendall = false;
+					bus.call(SquelAdr.PROC, CPEND, NOOP);
+				}
+				
+			}
+			else{
+				if(!bus.isUsed() && nextAct == null)
+				{
+					bus.call(adrcomp, adrloc, WRITE);
+					nextAct = new int[3];
+					nextAct[0] = adrcomp;
+					try{nextAct[1] = read(adrloc);}catch(WRException e){e.printStackTrace();}
+					nextAct[2] = WRITE;
+					adrloc++;
 				}
 			}
+		}
 		if(nextAct != null && !bus.isUsed())
 		{
 			if(!bus.isUsed())
