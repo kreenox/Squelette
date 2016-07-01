@@ -8,6 +8,8 @@ package component;
  *
  */
 public interface Clockable {
-	
+	/**
+	 * la fonction appelée par l'horloge a chaques ticks
+	 */
 	public abstract void work(); 
 }
