@@ -25,6 +25,18 @@ public class MainWin extends JFrame {
 		this.setExtendedState(Frame.MAXIMIZED_BOTH);
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		
+		//mise en place des menus
+		JMenuBar menu = new JMenuBar();
+		menu.setMaximumSize(new Dimension(999999999, 30));
+		this.getContentPane().add(menu);
+		JMenu men = new JMenu("Machine");
+		men.add(new JMenuItem("lancer la machine"));
+		men.add(new JMenuItem("Arreter la machine"));
+		men.add(new JMenuItem("Redemarer la machine"));
+		menu.add(men);
+		men = new JMenu("Aide");
+		men.add(new JMenuItem("à propos"));
+		menu.add(men);
 		//mise en place du panel de l'horloge
 		JSlider slid = new JSlider(SwingConstants.HORIZONTAL, 100, 2000, 500);
 		JTextField txf = new JTextField("500");
