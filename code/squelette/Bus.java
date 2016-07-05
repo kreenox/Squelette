@@ -1,6 +1,12 @@
 package squelette;
 
+import java.awt.Dimension;
+import java.util.Observable;
+import java.util.Observer;
+
+import javax.swing.BoxLayout;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 
 import component.AbsComponent;
 import component.NonConnectedException;
@@ -21,6 +27,8 @@ public class Bus extends AbsBus {
 	private int adr;
 	private int ctrl;
 	private State state;
+	//pour la fonction get UI
+	private JPanel observed = null;
 	
 	/**
 	 * creer et initialise un bus
@@ -65,6 +73,10 @@ public class Bus extends AbsBus {
 			ctrl = controle; 
 			state = State.CALLED;
 		}
+		if(observed != null){
+			this.setChanged();
+			this.notifyObservers();
+		}
 	}
 	/**
 	 * le bus envois les donnés reçues lors de l'appel
@@ -104,9 +116,43 @@ public class Bus extends AbsBus {
 	}
 
 	@Override
-	public JPanel getUI() {
-		// TODO Auto-generated method stub
-		return null;
+	public JPanel getUI() {//ceci est une essai
+		//on créé une classe pour cet objet
+		class Panel extends JPanel implements Observer{
+			private static final long serialVersionUID = 1L;
+			JTextField text;
+			public Panel(){
+				super();
+				text = new JTextField();
+				text.setEditable(false);
+				text.setMaximumSize(new Dimension(100, 30));
+				this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
+				this.add(text);
+			}
+			public void update(Observable arg0, Object arg1) {
+				switch(state){
+				case FREE:
+					this.text.setText("FREE");
+					break;
+				case TRANSMITING:
+					this.text.setText("TRANSMITING");
+					break;
+				case CALLED:
+					this.text.setText("CALLED");
+					break;
+				}
+			}
+			
+		}
+		if(observed == null)//on donne le panel que si on est pas observé
+		{
+			Panel pane = new Panel();//on créé le panel
+			this.addObserver(pane);//on l'ajoute comme observer
+			this.setChanged();;
+			this.notifyObservers();//on met à jour le panel
+			observed = pane;
+		}
+		return observed;//on le retourne
 	}
 
 	@Override
@@ -125,6 +171,10 @@ public class Bus extends AbsBus {
 			break;
 			default:
 				break;
+		}
+		if(observed != null){
+			this.setChanged();
+			this.notifyObservers();
 		}
 	}
 	@Override
