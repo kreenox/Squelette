@@ -6,9 +6,10 @@ import component.processor.unit.Registre;
 public class UAL extends AbsUAL{
 
 	//flags
-		private boolean  DEB = false;//il y a une retenue
+		private boolean DEB = false;//il y a une retenue
 		private boolean NEG = false;//la valeur dans sortie est negative
 		private boolean ZERO = false;//la valeur dans sortie est nulle
+		private boolean ERR = false;//le calcul contient une erreure
 		
 		private int mask = 0xFFFF;
 		
@@ -24,6 +25,8 @@ public class UAL extends AbsUAL{
 	//get
 	public boolean getDebordementFlag()
 	{return DEB;}
+	public boolean getErrCalcFlag()
+	{return ERR;}
 	public boolean getNegativeFlag()
 	{return NEG;}
 	public boolean getZeroFlag()
@@ -50,11 +53,22 @@ public class UAL extends AbsUAL{
 		s.write(tempres & mask);
 		break;
 	case SquelInstr.DIV:
+		if(e2.read() == 0){
+			ERR = true;
+			ZERO = NEG = DEB = false;
+			s.write(0x0000);
+			break;
+		}
 		tempres = e1.read() / e2.read();
 		testflag(tempres);
 		s.write(tempres & mask);
 		break;
 	case SquelInstr.MOD:
+		if(e2.read() == 0x0000){
+			ERR = true;
+			ZERO = NEG = DEB = false;
+			break;
+		}
 		tempres = e1.read() % e2.read();
 		testflag(tempres);
 		s.write(tempres & mask);
@@ -132,6 +146,8 @@ public class UAL extends AbsUAL{
 	
 	private void testflag(int val)
 	{
+		ERR = false;
+		
 		if(val == 0)
 			ZERO = true;
 		else ZERO = false;

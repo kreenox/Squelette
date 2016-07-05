@@ -44,7 +44,9 @@ public class Sequenceur{
 					resflag |= 0x0002;
 				if(u.getDebordementFlag())
 					resflag |= 0x0004;
-				tab[SquelInstr.ME].write((tab[SquelInstr.ME].read() & 0xFFF8) | resflag);
+				if(u.getErrCalcFlag())
+					resflag |= 0x0008;
+				tab[SquelInstr.ME].write((tab[SquelInstr.ME].read() & 0xFFF0) | resflag);
 				incRegistre(tab[SquelInstr.CO]);//on augmente le compteur ordinal
 				state = ATT;
 			}
