@@ -156,6 +156,12 @@ public class Clock implements Clockable
 		else throw new NonConnectedException();
 	}
 	//question
+	/**
+	 * permet de savoir si l'horloge est en pause
+	 * @return true si elle l'est, false sinon
+	 */
+	public boolean isPaused()
+	{return paused;}
 	//redefinition
 	@Override
 	public boolean equals(Object o)
