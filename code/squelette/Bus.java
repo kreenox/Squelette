@@ -190,7 +190,7 @@ public class Bus extends AbsBus {
 				res = res + "CALLED";
 				break;
 			case TRANSMITING:
-				res = res + "TRANSMITING " + adr + " on adresse " + data + " as datas with " + ctrl + " control";
+				res = res + "TRANSMITING " + divers.Affichages.hexStringFromInt(adr, 4) + " on adresse " + divers.Affichages.hexStringFromInt(data, 4) + " as datas with " + divers.Affichages.hexStringFromInt(ctrl, 4) + " control";
 				break;
 				default:
 					res = res + "what?";
