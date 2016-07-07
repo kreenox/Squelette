@@ -1,8 +1,23 @@
 package component;
 
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Observable;
+import java.util.Observer;
+
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JSlider;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 //import javax.swing.JPanel; a remettre avec getUI
 
@@ -24,6 +39,9 @@ public class Clock implements Clockable
 	private boolean paused;
 	private ArrayList<Clockable> connected;
 	private Thread t;
+	
+	//pour l'ui
+	private JPanel observed = null;
 	
 	/**
 	 * créé une hologe
@@ -65,10 +83,85 @@ public class Clock implements Clockable
 	public int getTickSize()
 	{return ticksize;}
 	//a décommenter plus tard
-	/*public JPanel getUI() {
-		return null;
+	public JPanel getUI() {
 		
-	}*/
+		class Panel extends JPanel implements Observer{
+			private static final long serialVersionUID = 2447946466878582673L;
+			private JSlider slid;
+			private JTextField val;
+			private JButton pau;
+			private JButton man;
+			
+			public Panel(){//a revoir
+				super();
+				this.setMaximumSize(new Dimension(9999999, 50));
+				this.setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
+				slid = new JSlider(SwingConstants.HORIZONTAL, 100, 2000, 500);
+				slid.setMaximumSize(new Dimension(450, 30));
+				slid.setMinimumSize(new Dimension(250, 30));
+				val = new JTextField("500");
+				val.setMaximumSize(new Dimension(100, 30));
+				val.setMinimumSize(new Dimension(75, 30));
+				pau = new JButton("Pause");
+				man = new JButton("Tick Manuel");
+				this.add(new JLabel("Horloge"));
+				this.add(slid);
+				this.add(val);
+				this.add(pau);
+				this.add(man);
+				slid.addChangeListener(new ChangeListener(){
+					public void stateChanged(ChangeEvent arg0) {
+						int temp = slid.getValue();
+						if(temp != 2000)
+							val.setText("" + temp);
+						else val.setText("manuel");
+					}});
+				val.addActionListener(new ActionListener(){
+					public void actionPerformed(ActionEvent arg0) {
+						int temp = Integer.parseInt(val.getText());
+						if(temp > 2000)
+							temp = 2000;
+						if(temp < 100)
+							temp = 100;
+						ticksize = temp;
+						slid.setValue(temp);
+					}});
+				pau.addActionListener(new ActionListener(){
+					public void actionPerformed(ActionEvent arg0) {
+						if(paused)
+						{
+							pau.setText("pause");
+							unpause();
+						}else{
+							pau.setText("lancer");
+							pause();
+						}
+					}
+					
+				});
+				man.addActionListener(new ActionListener(){
+					public void actionPerformed(ActionEvent e) {
+						if(true)//mettre la condition
+							tick();
+					}
+					
+				});
+			}
+
+			public void update(Observable arg0, Object arg1) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+		}
+		if(observed == null)
+		{
+			Panel pane = new Panel();
+			observed = pane;
+		}
+		return observed;
+		
+	}
 	//action
 	/**
 	 * met imediatement l'horloge en pause, elle n'emmet pas de tick
@@ -98,7 +191,7 @@ public class Clock implements Clockable
 		
 	}
 	/**
-	 * permet de d&connecter un objet de l'horloge
+	 * permet de deconnecter un objet de l'horloge
 	 * @param c l'objet à déconnecter
 	 * @throws NonConnectedException est envoyé si l'objet n'est pas encor connecté à l'horloge
 	 */
