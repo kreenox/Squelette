@@ -102,7 +102,7 @@ public class Clock implements Clockable
 				val = new JTextField("500");
 				val.setMaximumSize(new Dimension(100, 30));
 				val.setMinimumSize(new Dimension(75, 30));
-				pau = new JButton("Pause");
+				pau = new JButton("Lancer");
 				man = new JButton("Tick Manuel");
 				this.add(new JLabel("Horloge"));
 				this.add(slid);
