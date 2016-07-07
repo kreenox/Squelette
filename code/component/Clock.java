@@ -123,7 +123,7 @@ public class Clock implements Clockable
 							temp = 2000;
 						if(temp < 100)
 							temp = 100;
-						ticksize = temp;
+						setTickSize(temp);
 						slid.setValue(temp);
 					}});
 				pau.addActionListener(new ActionListener(){
