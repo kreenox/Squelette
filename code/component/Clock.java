@@ -69,7 +69,7 @@ public class Clock implements Clockable
 	 * change le temps entre deux ticks
 	 * @param val la taille d'un tick  en ms
 	 */
-	public void setTickSize(int val)
+	public synchronized void setTickSize(int val)
 	{
 		if(val >=0)
 			ticksize = val;
@@ -112,6 +112,7 @@ public class Clock implements Clockable
 				slid.addChangeListener(new ChangeListener(){
 					public void stateChanged(ChangeEvent arg0) {
 						int temp = slid.getValue();
+						setTickSize(temp);
 						if(temp != 2000)
 							val.setText("" + temp);
 						else val.setText("manuel");
