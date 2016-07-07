@@ -150,9 +150,10 @@ public class RAM extends AbsMemory {
 			bus.call(nextBusCall[0], nextBusCall[1], nextBusCall[2]);
 			nextBusCall = null;
 		}
-		
-		setChanged();
-		notifyObservers();
+		if(observed != null){
+			setChanged();
+			notifyObservers();
+		}
 		
 	}
 
@@ -170,7 +171,6 @@ public class RAM extends AbsMemory {
 				data.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 				for(int n = 0; n < size; n++){
 					data.setValueAt(divers.Affichages.hexStringFromInt(n, 4), n, 0);
-					data.setValueAt(divers.Affichages.hexStringFromInt(content[n], 4), n, 1);
 				}
 				this.add(new JScrollPane(data, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER));
 			}
@@ -184,6 +184,7 @@ public class RAM extends AbsMemory {
 		if(observed == null)
 		{
 			Panel pane = new Panel();
+			this.addObserver(pane);
 			this.setChanged();
 			this.notifyObservers();
 			observed = pane;
