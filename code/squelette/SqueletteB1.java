@@ -1,6 +1,13 @@
 package squelette;
 
+import java.awt.Dimension;
+import java.awt.GridLayout;
+import java.util.Observable;
+import java.util.Observer;
+
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 
 import component.AbsComponent;
 import component.Clock;
@@ -33,6 +40,8 @@ public class SqueletteB1 extends AbsProcessor {
 	//relatif a la seqence de boot
 	private int boot = 0;
 	private final int READY = 15;//temporaire
+	//getui
+	private JPanel observed = null;
 	
 	public  SqueletteB1()
 	{
@@ -119,8 +128,71 @@ public class SqueletteB1 extends AbsProcessor {
 
 	@Override
 	public JPanel getUI() {
-		// TODO Auto-generated method stub
-		return null;
+
+		class Panel extends JPanel implements Observer{
+			private static final long serialVersionUID = 1L;
+			private JTextField[] reg;
+			private JTextField mask;
+			
+			public Panel(){
+				this.setLayout(new GridLayout(8, 4, 5, 5));
+				reg = new JTextField[16];
+				for(int n = 0; n < reg.length; n++){
+					reg[n] = new JTextField();
+					reg[n].setMaximumSize(new Dimension(75, 30));
+				}
+				mask = new JTextField();
+				mask.setMaximumSize(new Dimension(75, 30));
+				this.add(new JLabel("R0 : "));
+				this.add(reg[0]);
+				this.add(new JLabel("R1 : "));
+				this.add(reg[1]);
+				this.add(new JLabel("R2 : "));
+				this.add(reg[2]);
+				this.add(new JLabel("R3 : "));
+				this.add(reg[3]);
+				this.add(new JLabel("R4 : "));
+				this.add(reg[4]);
+				this.add(new JLabel("R5 : "));
+				this.add(reg[5]);
+				this.add(new JLabel("R6 : "));
+				this.add(reg[6]);
+				this.add(new JLabel("R7 : "));
+				this.add(reg[7]);
+				this.add(new JLabel("RBA : "));
+				this.add(reg[8]);
+				this.add(new JLabel("RBD : "));
+				this.add(reg[9]);
+				this.add(new JLabel("RBC : "));
+				this.add(reg[10]);
+				this.add(new JLabel("RH : "));
+				this.add(reg[11]);
+				this.add(new JLabel("PP : "));
+				this.add(reg[12]);
+				this.add(new JLabel("RI : "));
+				this.add(reg[13]);
+				this.add(new JLabel("ME : "));
+				this.add(reg[14]);
+				this.add(new JLabel("CO : "));
+				this.add(reg[15]);
+				
+			}
+			@Override
+			public void update(Observable o, Object arg) {
+				for(int n = 0; n < reg.length; n++)
+					reg[n].setText(divers.Affichages.hexStringFromInt(tab[n].read(), 4));
+			}
+			
+		}
+		if(observed == null)
+		{
+			Panel pane = new Panel();
+			this.addObserver(pane);
+			this.setChanged();
+			this.notifyObservers();
+			observed = pane;
+		}
+		return observed;
 	}
 
 }

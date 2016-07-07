@@ -1,6 +1,14 @@
 package squelette;
 
+import java.util.Observable;
+import java.util.Observer;
+
+import javax.swing.BoxLayout;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.ScrollPaneConstants;
 
 import component.AbsComponent;
 import component.NonConnectedException;
@@ -23,6 +31,8 @@ public class RAM extends AbsMemory {
 	private Bus bus;//a changer plus tard
 	private int[] nextBusCall;//temporaire en attendant une meilleure solution
 	private boolean waitNext;
+	//pour le getUI
+	private JPanel observed = null;
 	
 	//sert a stocker l'addresse de la prochaine ecriture
 	private int adr = -1;
@@ -125,6 +135,8 @@ public class RAM extends AbsMemory {
 					{
 						try{write(bus.getTransmitedData(), adr);}catch (WRException e){e.printStackTrace();}
 						waitNext = false;
+						this.setChanged();
+						this.notifyObservers();
 					}
 					break;
 					default:
@@ -139,12 +151,44 @@ public class RAM extends AbsMemory {
 			nextBusCall = null;
 		}
 		
+		setChanged();
+		notifyObservers();
+		
 	}
 
 	@Override
 	public JPanel getUI() {
-		// TODO Auto-generated method stub
-		return null;
+		
+		class Panel extends JPanel implements Observer{
+			private static final long serialVersionUID = 1L;
+			private JTable data;
+
+			public Panel(){
+				this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
+				this.add(new JLabel("RAM :"));
+				data = new JTable(size, 2);
+				data.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+				for(int n = 0; n < size; n++){
+					data.setValueAt(divers.Affichages.hexStringFromInt(n, 4), n, 0);
+					data.setValueAt(divers.Affichages.hexStringFromInt(content[n], 4), n, 1);
+				}
+				this.add(new JScrollPane(data, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER));
+			}
+			public void update(Observable arg0, Object arg1) {
+				for(int n = 0; n < size; n++)
+					data.setValueAt(divers.Affichages.hexStringFromInt(content[n], 4), n, 1);
+			}
+			
+		}
+		
+		if(observed == null)
+		{
+			Panel pane = new Panel();
+			this.setChanged();
+			this.notifyObservers();
+			observed = pane;
+		}
+		return observed;
 	}
 	//private
 	private void reset()
