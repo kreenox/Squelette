@@ -227,7 +227,6 @@ public class Clock implements Clockable
 	 */
 	public void tick()
 	{
-		System.out.println("tick emmited");
 		Iterator<Clockable> it = connected.iterator();
 		while(it.hasNext())
 			it.next().work();
