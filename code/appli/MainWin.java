@@ -2,10 +2,12 @@ package appli;
 
 import java.awt.Dimension;
 import java.awt.Frame;
+import java.awt.GridLayout;
 import java.awt.event.*;
 
 import javax.swing.*;
 import javax.swing.event.*;
+
 
 public class MainWin extends JFrame {
 
@@ -15,10 +17,13 @@ public class MainWin extends JFrame {
 
 	public static void main(String args[])
 	{
-		MainWin w = new MainWin();
+		Compute c = new Compute(0xFFFF, "ROM");
+		MainWin w = new MainWin(c);
 		w.setVisible(true);
 	}
-	public MainWin()
+	
+	
+	public MainWin(Compute c)
 	{
 		this.setTitle("Squelette");
 		this.setSize(600, 400);
@@ -67,12 +72,17 @@ public class MainWin extends JFrame {
 				else slid.setValue(temp);
 			}});
 		ckpane.add(new JButton("pause"));
-		ckpane.add(new JButton("Tick manuels"));
+		JButton man = new JButton("Tick manuels");
+		ckpane.add(man);
 		this.getContentPane().setLayout(new BoxLayout(this.getContentPane(), BoxLayout.PAGE_AXIS));
-		this.getContentPane().add(ckpane);
+		this.getContentPane().add(c.mainck.getUI() /*ckpane*/);
 		
 		//mise en place du panel des composants
 		tab = new JPanel();
+		tab.setLayout(new GridLayout(2, 2, 5, 5));
+		tab.add(c.proc.getUI());
+		tab.add(c.ram.getUI());
+		tab.add(c.b.getUI());
 		this.getContentPane().add(tab);
 		
 	}
