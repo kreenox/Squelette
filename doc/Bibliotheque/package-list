@@ -1,0 +1,5 @@
+component
+component.bus
+component.memory
+component.processor
+component.processor.unit
