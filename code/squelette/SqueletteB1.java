@@ -64,7 +64,10 @@ public class SqueletteB1 extends AbsProcessor {
 		{
 			seq.work(bus, tab, intmask, ual, dec);
 		}
-		
+		if(observed != null){
+			setChanged();
+			notifyObservers();
+		}
 		
 	}
 	
