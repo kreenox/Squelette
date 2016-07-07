@@ -135,7 +135,7 @@ public class Bus extends AbsBus {
 					this.text.setText("FREE");
 					break;
 				case TRANSMITING:
-					this.text.setText("TRANSMITING : " + adr + " on adresse " + data + " as datas with " + ctrl + " control");
+					this.text.setText("TRANSMITING " + divers.Affichages.hexStringFromInt(adr, 4) + " on adresse " + divers.Affichages.hexStringFromInt(data, 4) + " as datas with " + divers.Affichages.hexStringFromInt(ctrl, 4) + " control");
 					break;
 				case CALLED:
 					this.text.setText("CALLED");
