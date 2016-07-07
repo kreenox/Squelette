@@ -125,7 +125,7 @@ public class Bus extends AbsBus {
 				super();
 				text = new JTextField();
 				text.setEditable(false);
-				text.setMaximumSize(new Dimension(100, 30));
+				text.setMaximumSize(new Dimension(400, 30));
 				this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 				this.add(text);
 			}
@@ -135,7 +135,7 @@ public class Bus extends AbsBus {
 					this.text.setText("FREE");
 					break;
 				case TRANSMITING:
-					this.text.setText("TRANSMITING");
+					this.text.setText("TRANSMITING : " + adr + " on adresse " + data + " as datas with " + ctrl + " control");
 					break;
 				case CALLED:
 					this.text.setText("CALLED");
