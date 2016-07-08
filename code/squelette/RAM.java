@@ -111,6 +111,10 @@ public class RAM extends AbsMemory {
 					nextBusCall = new int[3];
 					nextBusCall[0] = SquelAdr.PROC;
 					adr = bus.getTransmitedData();
+					if(observed != null){
+						setChanged();
+						notifyObservers();
+					}
 					try {
 						nextBusCall[1] = read(adr);
 						nextBusCall[2] = 0x0;
@@ -135,8 +139,10 @@ public class RAM extends AbsMemory {
 					{
 						try{write(bus.getTransmitedData(), adr);}catch (WRException e){e.printStackTrace();}
 						waitNext = false;
-						this.setChanged();
-						this.notifyObservers();
+						if(observed != null){
+							setChanged();
+							notifyObservers();
+						}
 					}
 					break;
 					default:
@@ -150,10 +156,7 @@ public class RAM extends AbsMemory {
 			bus.call(nextBusCall[0], nextBusCall[1], nextBusCall[2]);
 			nextBusCall = null;
 		}
-		if(observed != null){
-			setChanged();
-			notifyObservers();
-		}
+		
 		
 	}
 
@@ -171,12 +174,14 @@ public class RAM extends AbsMemory {
 				data.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 				for(int n = 0; n < size; n++){
 					data.setValueAt(divers.Affichages.hexStringFromInt(n, 4), n, 0);
+					data.setValueAt(divers.Affichages.hexStringFromInt(content[n], 4), n, 1);
 				}
 				this.add(new JScrollPane(data, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER));
 			}
 			public void update(Observable arg0, Object arg1) {
-				for(int n = 0; n < size; n++)
-					data.setValueAt(divers.Affichages.hexStringFromInt(content[n], 4), n, 1);
+				data.setValueAt(divers.Affichages.hexStringFromInt(content[adr], 4), adr, 1);
+				data.changeSelection(adr, 0, false, false);
+				data.changeSelection(adr, 0, true, true);
 			}
 			
 		}
@@ -185,8 +190,6 @@ public class RAM extends AbsMemory {
 		{
 			Panel pane = new Panel();
 			this.addObserver(pane);
-			this.setChanged();
-			this.notifyObservers();
 			observed = pane;
 		}
 		return observed;
