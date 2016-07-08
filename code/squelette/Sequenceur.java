@@ -102,8 +102,8 @@ public class Sequenceur{
 					break;
 				case SquelInstr.RET://prend le dessus de la pile et le met dans CO
 					if(!b.isUsed()){
-						b.call(SquelAdr.RAM, tab[SquelInstr.PP].read(), AbsMemory.READ);
 						decRegistre(tab[SquelInstr.PP]);
+						b.call(SquelAdr.RAM, tab[SquelInstr.PP].read(), AbsMemory.READ);
 						state = SECACT;
 					}
 					break;
@@ -152,8 +152,9 @@ public class Sequenceur{
 			switch(d.getInstruction()){
 			case SquelInstr.CALL://pousse CO dans la pile puis saut inconditionel
 				if(!b.isUsed()){
-					b.call(SquelAdr.RAM, tab[SquelInstr.CO].read(), AbsMemory.READ);
+					b.call(SquelAdr.RAM, tab[SquelInstr.CO].read(), AbsMemory.WRITE);
 					tab[SquelInstr.CO].write(tab[d.getR1()].read());
+					incRegistre(tab[SquelInstr.PP]);
 					state = ATT;
 				}
 				break;
