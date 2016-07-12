@@ -10,6 +10,8 @@ public class Sequenceur{
 	private final int FETCH = 0x0001;
 	private final int ACT = 0x0002;
 	private final int SECACT = 0x0004;
+	private final int TRIACT = 0x0008;
+	private final int QUAACT = 0x0010;
 
 	public void work(Bus b, Registre[] tab, Registre intmask, UAL u, Decodeur d)
 	{
@@ -107,9 +109,19 @@ public class Sequenceur{
 						state = SECACT;
 					}
 					break;
-				case SquelInstr.IRET://prend dans la pile toutes les valeures des registres
+				case SquelInstr.IRET://prend CO dans la pile puis le met dans le bon registre
+					if(!b.isUsed())
+					{
+						decRegistre(tab[SquelInstr.PP]);
+						b.call(SquelAdr.RAM, tab[SquelInstr.PP].read(), AbsMemory.READ);
+						state = SECACT;
+					}
 					break;
-				case SquelInstr.INT://pousse tout les registresdans la pile puis saut
+				case SquelInstr.INT://pousse CO dans la pile puis met le traitant dans CO 
+					if(!b.isUsed()){
+						b.call(SquelAdr.RAM, tab[SquelInstr.PP].read(), AbsMemory.WRITE);
+						state = SECACT;
+					}
 					break;
 					//gestion de la memoire
 				case SquelInstr.LOAD:
@@ -162,12 +174,25 @@ public class Sequenceur{
 				if(b.isTransmiting() && b.getTransmitedAdresse() == SquelAdr.PROC)
 				{
 					tab[SquelInstr.CO].write(b.getTransmitedData());
+					incRegistre(tab[SquelInstr.CO]);
 					state = ATT;
 				}
 				break;
-			case SquelInstr.IRET://prend dans la pile toutes les valeures des registres
+			case SquelInstr.INT:
+				if(!b.isUsed())
+				{
+					b.call(SquelAdr.RAM, tab[SquelInstr.CO].read(), AbsMemory.WRITE);
+					incRegistre(tab[SquelInstr.PP]);
+					state = TRIACT;
+				}
 				break;
-			case SquelInstr.INT://pousse tout les registresdans la pile puis saut
+			case SquelInstr.IRET:
+				if(b.isTransmiting() && b.getTransmitedAdresse() == SquelAdr.PROC)
+				{
+					tab[SquelInstr.CO].write(b.getTransmitedData());
+					incRegistre(tab[SquelInstr.CO]);
+					state = ATT;
+				}
 				break;
 			case SquelInstr.LOAD:
 				if(b.isTransmiting() && b.getTransmitedAdresse() == SquelAdr.PROC)
@@ -207,11 +232,35 @@ public class Sequenceur{
 				}
 				break;
 			}
+		}else if((state & TRIACT) == TRIACT){
+			switch(d.getInstruction())
+			{
+			case SquelInstr.INT:
+				if(!b.isUsed())
+				{
+					b.call(SquelAdr.RAM, (d.getR1() | 0x0010), AbsMemory.READ);
+					state = QUAACT;
+				}
+				break;
+				default:
+					break;
+			}
+		}else if((state & QUAACT) == QUAACT){
+			switch(d.getInstruction())
+			{
+			case SquelInstr.INT:
+				if(b.isTransmiting() && b.getTransmitedAdresse() == SquelAdr.PROC)
+				{
+					tab[SquelInstr.CO].write(b.getTransmitedData());
+					state = ATT;
+				}
+				break;
+				default:
+					break;
+			}
 		}
-
-
-
-
+		
+		
 	}
 
 	private void incRegistre(Registre r)
