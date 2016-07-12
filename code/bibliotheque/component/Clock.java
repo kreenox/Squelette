@@ -69,7 +69,7 @@ public class Clock implements Clockable
 	 * change le temps entre deux ticks
 	 * @param val la taille d'un tick  en ms
 	 */
-	public synchronized void setTickSize(int val)
+	public void setTickSize(int val)
 	{
 		if(val >=0)
 			ticksize = val;
