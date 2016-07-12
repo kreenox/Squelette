@@ -271,15 +271,6 @@ public class Sequenceur{
 	{
 		r.write(r.read() - 1);
 	}
-	/*private int switchbit(int ori, int mask, boolean val)
-	{
-		int res = ori;
-		if(val)//on doit mettre à vrai
-			ori |= mask;
-		else//on doit mettre à faut
-			ori &= ~mask;
-		return res;
-	}*/
 
 	//redefinitions
 	
