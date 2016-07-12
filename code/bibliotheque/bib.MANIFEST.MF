@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Implementation-Vendor: Fabien ANXA
+Implementation-Title: Bibliothèque squelette
+Implementation-Version: 0.0.0
+Specification-Vendor: Fabien ANXA
+Created-By: Fabien ANXA
+Specification-Title: Bibliothèque pour la machine virtuelle squelette
+Specification-Version: 0.0.0
