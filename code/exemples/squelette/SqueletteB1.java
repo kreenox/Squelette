@@ -40,6 +40,10 @@ public class SqueletteB1 extends AbsProcessor {
 	//relatif a la seqence de boot
 	private int boot = 0;
 	private final int READY = 15;//temporaire
+	//gestion des interuptions
+	private final int NOINT = -1;
+	private boolean Int = false;
+	private int intnum = NOINT;
 	//getui
 	private JPanel observed = null;
 	
@@ -57,12 +61,18 @@ public class SqueletteB1 extends AbsProcessor {
 	}
 	@Override
 	public void work() {
-		
+		//on verifie que l'on est pas en boot sequence
 		if(boot != READY)
 			bootSeq();
+		else if(tab[SquelInstr.RH].read() == 0)
+		{
+			Int = true;
+			intnum = 0;
+		}
 		else
 		{
 			seq.work(bus, tab, intmask, ual, dec);
+			tab[SquelInstr.RH].write(tab[SquelInstr.RH].read() - 1);
 		}
 		if(observed != null){
 			setChanged();
@@ -101,6 +111,11 @@ public class SqueletteB1 extends AbsProcessor {
 			boot++;
 		}
 		else if(boot == 5)
+		{
+			tab[SquelInstr.RH].write(0xFFFF);
+			boot++;
+		}
+		else if(boot == 6)
 		{
 			intmask.write(0xFFFF);
 			boot = READY;

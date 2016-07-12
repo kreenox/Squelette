@@ -13,6 +13,11 @@ public class Sequenceur{
 	private final int TRIACT = 0x0008;
 	private final int QUAACT = 0x0010;
 
+	//set
+	//get
+	public int getState()
+	{return state;}
+	//action
 	public void work(Bus b, Registre[] tab, Registre intmask, UAL u, Decodeur d)
 	{
 		if(state == ATT && !b.isUsed())//appel du bus pour recuperation de l'instruction
