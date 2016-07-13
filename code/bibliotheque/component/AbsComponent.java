@@ -9,7 +9,7 @@ import java.util.ArrayList;
 /**
  * cet classe est pour pouvoir gerer les composant
  * @author Fabien ANXA
- * @version 0.0.0
+ * @version 0.1.0
  * @since 0.0.0
  */
 public abstract class AbsComponent extends Observable implements Clockable{
@@ -55,6 +55,11 @@ public abstract class AbsComponent extends Observable implements Clockable{
 	 * @return un JPanel qui contient l'interfacage graphique du composant
 	 */
 	abstract public JPanel getUI();
+	/**
+	 * permet de connaitre le type d'un composant
+	 * @return le type du composant
+	 */
+	abstract public ComponentTypes getComponentType();
 	
 	@Override
 	public boolean equals(Object o)

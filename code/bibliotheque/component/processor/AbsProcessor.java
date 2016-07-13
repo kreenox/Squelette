@@ -1,12 +1,13 @@
 package component.processor;
 
 import component.AbsComponent;
+import component.ComponentTypes;
 
 
 /**
  * permet d'implementer les processeurs
  * @author Fabien ANXA
- * @version 0.0.0
+ * @version 0.1.0
  * @since 0.0.0
  *
  */
@@ -49,5 +50,10 @@ public abstract class AbsProcessor extends AbsComponent {
 	 * permet de lancer le processeur
 	 */
 	public abstract void bootSeq();
+	//redefinition
+	public final ComponentTypes getComponentType()
+	{
+		return ComponentTypes.PROCESSOR;
+	}
 
 }

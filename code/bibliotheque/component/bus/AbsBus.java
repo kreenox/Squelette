@@ -2,6 +2,7 @@
 
 
 import component.AbsComponent;
+import component.ComponentTypes;
 /**
  * les bus permettent de gerer les communications entre les composants.
  * le bus commence en etat d'attente tant qu'il n'est pas appelé par un composant il ne transmet aucune donné.
@@ -59,5 +60,9 @@ public abstract class AbsBus extends AbsComponent {
 	 */
 	public abstract boolean isTransmiting();
 	//redefintion
+	public ComponentTypes getComponentType()
+	{
+		return ComponentTypes.BUS;
+	}
 
 }

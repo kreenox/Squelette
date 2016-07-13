@@ -1,12 +1,13 @@
 package component.memory;
 
 import component.AbsComponent;
+import component.ComponentTypes;
 
 
 /**
  * cette classe gère les emplacements mémoir à l'interieur de la mémoire
  * @author Fabien ANXA
- * @version 0.0.0
+ * @version 0.1.0
  * @since 0.0.0
  *
  */
@@ -62,6 +63,10 @@ public abstract class AbsMemory extends AbsComponent {
 	
 	//question
 	//redefinition
+	public final ComponentTypes getComponentType()
+	{
+		return ComponentTypes.MEMORY;
+	}
 	
 
 }
