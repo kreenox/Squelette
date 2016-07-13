@@ -63,6 +63,7 @@ public abstract class AbsMemory extends AbsComponent {
 	
 	//question
 	//redefinition
+	@Override
 	public final ComponentTypes getComponentType()
 	{
 		return ComponentTypes.MEMORY;

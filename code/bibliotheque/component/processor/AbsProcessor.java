@@ -51,6 +51,7 @@ public abstract class AbsProcessor extends AbsComponent {
 	 */
 	public abstract void bootSeq();
 	//redefinition
+	@Override
 	public final ComponentTypes getComponentType()
 	{
 		return ComponentTypes.PROCESSOR;

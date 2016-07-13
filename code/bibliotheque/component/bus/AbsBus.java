@@ -60,6 +60,7 @@ public abstract class AbsBus extends AbsComponent {
 	 */
 	public abstract boolean isTransmiting();
 	//redefintion
+	@Override
 	public ComponentTypes getComponentType()
 	{
 		return ComponentTypes.BUS;
