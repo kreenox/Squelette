@@ -16,24 +16,40 @@ public abstract class AbsComponent extends Observable implements Clockable{
 	/**
 	 * une liste des éléments connéctés au composant
 	 */
-	protected ArrayList<AbsComponent> connected;
+	private ArrayList<AbsComponent> connected;
 	
+	public AbsComponent()
+	{
+		connected = new ArrayList<AbsComponent>();
+	}
 	/**
 	 * connecte un composant à celui-ci
 	 * @param c le composant à connecter
 	 */
-	abstract public void connectTo(AbsComponent c);
+	public void connectTo(AbsComponent c)
+	{
+		if(!connected.contains(c))
+			connected.add(c);
+	}
 	/**
 	 * déconnecte tout les composants qui sont connecté a celui-ci
 	 * 
 	 */
-	abstract public void disconnect();
+	public void disconnect()
+	{
+		connected.clear();
+	}
 	/**
 	 * déconnecte un composant à celui-ci
 	 * @param c le composant à déconnecter
 	 * @throws NonConnectedException si le composant n'est pas connecté
 	 */
-	abstract public void disconnectFrom(AbsComponent c) throws NonConnectedException;
+	public void disconnectFrom(AbsComponent c) throws NonConnectedException
+	{
+		if(!connected.contains(c))
+			throw new NonConnectedException();
+		connected.remove(c);
+	}
 	/**
 	 * construit une interface graphique
 	 * @return un JPanel qui contient l'interfacage graphique du composant
