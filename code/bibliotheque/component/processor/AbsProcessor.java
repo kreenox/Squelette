@@ -34,6 +34,10 @@ public abstract class AbsProcessor extends AbsComponent {
 		 */
 		FULL
 	}
+	public AbsProcessor()
+	{
+		super();
+	}
 	/**
 	 * permet de changer l'alimentation du processeur
 	 * @param s la nouvelle consomation du processeur
@@ -50,6 +54,10 @@ public abstract class AbsProcessor extends AbsComponent {
 	 * permet de lancer le processeur
 	 */
 	public abstract void bootSeq();
+	/**
+	 * signale au processeur qu'un PIC a une interruption
+	 */
+	public abstract void interrupt();
 	//redefinition
 	@Override
 	public final ComponentTypes getComponentType()

@@ -21,6 +21,7 @@ public abstract class AbsBus extends AbsComponent {
 	 */
 	public AbsBus()
 	{
+		super();
 		data = 0x00000000;
 	}
 	//set

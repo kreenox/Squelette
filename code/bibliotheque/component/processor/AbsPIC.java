@@ -17,6 +17,7 @@ public abstract class AbsPIC extends AbsProcessor {
 	
 	public AbsPIC()
 	{
+		super();
 		not = new ArrayList<AbsProcessor>();
 	}
 	/**

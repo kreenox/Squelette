@@ -10,6 +10,10 @@ package component.memory;
 public abstract class AbsReadOnlyMemory extends AbsMemory {
 
 
+	public AbsReadOnlyMemory()
+	{
+		super();
+	}
 	@Override
 	public void write(int val, int adr) throws WRException {
 		throw new WRException(null);

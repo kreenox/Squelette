@@ -42,7 +42,10 @@ public abstract class AbsMemory extends AbsComponent {
 	 */
 	public static final int CPEND = 0x0002;
 	
-	
+	public AbsMemory()
+	{
+		super();
+	}
 	//set
 	//get
 	//action
