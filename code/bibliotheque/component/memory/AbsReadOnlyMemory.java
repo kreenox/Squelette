@@ -1,5 +1,7 @@
 package component.memory;
 
+import component.WRException;
+
 /**
  * cette classe gére les mémoire à lecture seule
  * @author Fabien ANXA

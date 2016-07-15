@@ -3,6 +3,7 @@
 
 import component.AbsComponent;
 import component.ComponentTypes;
+import component.WRException;
 /**
  * les bus permettent de gerer les communications entre les composants.
  * le bus commence en etat d'attente tant qu'il n'est pas appelé par un composant il ne transmet aucune donné.
@@ -31,7 +32,7 @@ public abstract class AbsBus extends AbsComponent {
 	 * renvoi une donnée eronné si le bus ne transmet pas.
 	 * @returnla donnée transmise
 	 */
-	public int getTransmitedData()
+	public int getTransmitedData()throws WRException
 	{
 		return data;
 	}

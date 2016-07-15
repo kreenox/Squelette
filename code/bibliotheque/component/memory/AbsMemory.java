@@ -2,6 +2,7 @@ package component.memory;
 
 import component.AbsComponent;
 import component.ComponentTypes;
+import component.WRException;
 
 
 /**
