@@ -5,6 +5,7 @@ import java.util.Observable;
 import javax.swing.JPanel;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 /**
  * cet classe est pour pouvoir gerer les composant
@@ -22,6 +23,12 @@ public abstract class AbsComponent extends Observable implements Clockable{
 	{
 		connected = new ArrayList<AbsComponent>();
 	}
+	/**
+	 * permet de recuperer la liste des composants connéctés à celui-ci
+	 * @return un iterator contenant les composants connectés a celui-ci
+	 */
+	public Iterator<AbsComponent> getConnectedList()
+	{return connected.iterator();}
 	/**
 	 * connecte un composant à celui-ci
 	 * @param c le composant à connecter
