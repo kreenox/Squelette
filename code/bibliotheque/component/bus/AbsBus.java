@@ -16,6 +16,7 @@ import component.WRException;
 public abstract class AbsBus extends AbsComponent {
 
 	private int data;
+	private BusState etat;//temporaire
 	
 	/**
 	 * créé et initialise le bus
@@ -23,18 +24,20 @@ public abstract class AbsBus extends AbsComponent {
 	public AbsBus()
 	{
 		super();
-		data = 0x00000000;
+		reset();
 	}
 	//set
 	//get
 	/**
 	 * permet de récupérer les données transmise via le bus
-	 * renvoi une donnée eronné si le bus ne transmet pas.
-	 * @returnla donnée transmise
+	 * @return la donnée transmise
+	 * @throws WRException si le bus ne transmet pas de données
 	 */
 	public int getTransmitedData()throws WRException
 	{
-		return data;
+		if(etat == BusState.TRANSMITING)
+			return data;
+		else throw new WRException(null);
 	}
 	//action
 	/**
@@ -43,24 +46,39 @@ public abstract class AbsBus extends AbsComponent {
 	 */
 	public void call(int dat)
 	{
-		data = dat;
+		if(etat == BusState.FREE);
+			data = dat;
 	}
 	/**
 	 * fait transiter les donnés par le bus
 	 */
-	public abstract void transmit();
+	public void transmit()
+	{
+		if(etat == BusState.CALLED)
+			etat = BusState.TRANSMITING;
+	}
+	/**
+	 * réinitialise le bus
+	 */
+	public void reset()
+	{
+		etat = BusState.FREE;
+		data = 0x00000000;
+	}
 	//questions
 	/**
 	 * pour savoir si le bus est en cours d'utilisation
 	 * @return true si il est utilisé false sinon
 	 */
-	public abstract boolean isUsed();
+	public boolean isUsed()
+	{return etat != BusState.FREE;}
 	/**
 	 * pour savoir si le bus est en train de transmettre.
 	 * la methode getTransmitedData renvoi une donnée eronné si le bus ne transmet pas.
 	 * @return true si le bus transmet des données, false sinon
 	 */
-	public abstract boolean isTransmiting();
+	public boolean isTransmiting()
+	{return etat == BusState.TRANSMITING;}
 	//redefintion
 	@Override
 	public final ComponentTypes getComponentType()
