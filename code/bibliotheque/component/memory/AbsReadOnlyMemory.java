@@ -18,7 +18,7 @@ public abstract class AbsReadOnlyMemory extends AbsMemory {
 	}
 	@Override
 	public void write(int val, int adr) throws WRException {
-		throw new WRException(null);
+		throw new WRException(false);
 
 	}
 

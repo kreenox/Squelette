@@ -37,7 +37,7 @@ public abstract class AbsBus extends AbsComponent {
 	{
 		if(etat == BusState.TRANSMITING)
 			return data;
-		else throw new WRException(null);
+		else throw new WRException(false);
 	}
 	//action
 	/**
