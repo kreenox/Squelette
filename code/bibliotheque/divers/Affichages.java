@@ -3,7 +3,7 @@ package divers;
 /**
  * cette classe contient toutes les méthodes pour effectuer des affichages spéciaux
  * @author Fabien Anxa
- * @version 0.0.0
+ * @version 0.1.0
  * @since 0.0.0
  *
  */
@@ -24,6 +24,23 @@ public abstract class Affichages {
 		while(temp.length() > nbdg)
 			temp = temp.substring(1);
 		res = res + temp.toUpperCase();
+		return res;
+	}
+	/**
+	 * permet de récuperer une chaine pour afficher une valeur binaire
+	 * @param val la valeure à afficher en binaire
+	 * @param nbdg le nombre de digit à afficher
+	 * @return une chaine pour afficher la valeur en binaire
+	 */
+	public static String binStringFromInt(int val, int nbdg)
+	{
+		String res = "0b";
+		String temp = Integer.toBinaryString(val);
+		while(temp.length() < nbdg)
+			temp = "0" + temp;
+		while(temp.length() > nbdg)
+			temp = temp.substring(1);
+		res = res + temp;
 		return res;
 	}
 }
