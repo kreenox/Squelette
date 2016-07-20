@@ -16,6 +16,10 @@ public enum ComponentTypes {
 	 */
 	MEMORY, 
 	/**
+	 * pour les memoires de masse
+	 */
+	MASSMEMORY,
+	/**
 	 * pour les bus
 	 */
 	BUS, 
