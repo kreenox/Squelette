@@ -43,4 +43,21 @@ public abstract class Affichages {
 		res = res + temp;
 		return res;
 	}
+	/**
+	 * permet de recuperer une chaine pour afficher une valeur octal
+	 * @param val la valeur a afficher en octal
+	 * @param nbdg le nobre de digit a afficher
+	 * @return une chaine pour afficher la valeur en octal
+	 */
+	public static String octStringFromInt(int val, int nbdg)
+	{
+		String res = "0";
+		String temp = Integer.toOctalString(val);
+		while(temp.length() > nbdg)
+			temp = "0" + temp;
+		while(temp.length() < nbdg)
+			temp = temp.substring(1);
+		res = res + temp;
+		return res;
+	}
 }
