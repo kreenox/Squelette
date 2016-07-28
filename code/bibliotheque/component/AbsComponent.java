@@ -34,7 +34,7 @@ public abstract class AbsComponent extends Observable implements Clockable{
 	 */
 	public void SetExternalClock(Clock ck)
 	{
-		ck.enslave(ck);
+		ck.enslave(inck);
 	}
 	//get
 	/**
