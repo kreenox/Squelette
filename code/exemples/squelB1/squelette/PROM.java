@@ -8,129 +8,104 @@ import java.io.IOException;
 import javax.swing.JPanel;
 
 import component.AbsComponent;
-import component.NonConnectedException;
-import component.memory.AbsMemory;
-import component.memory.WRException;
+import component.ComponentTypes;
+import component.WRException;
+import component.bus.AbsBus;
+import component.memory.AbsReadOnlyMemory;
 
-public class PROM extends AbsMemory {
-
-	public int size;
-	public int bitsize;
-	public int[] content;
-	public int[] nextAct;
-	public Bus bus;
+public class PROM extends AbsReadOnlyMemory {
 	
-	private boolean sendall;
-	private int adrloc;
-	private int adrcomp;
+	private int size;
+	private int[] data;
+	private AbsBus[] b;
+	private int offset;
+	private int lastadr;
+	private int lastinstr;
 	
-	public PROM(String path) throws FileNotFoundException , IOException
+	public PROM(String path) throws IOException
 	{
-		load(path);
-		nextAct = null;
-		sendall = false;
-		adrcomp = 0;
-		adrloc = 0;
+		lastadr = 0;
+		lastinstr = 0;
+		offset = 0;
+		b = new AbsBus[3];
+		loadFrom(path);
 	}
-	
+	//redefinition
+	@Override
+	public void connectTo(AbsComponent c)
+	{
+		if(c.getComponentType() == ComponentTypes.BUS)
+		{
+			Bus b = (Bus)c;
+			switch(b.getBusType())
+			{
+			case DATA:
+				this.b[0] = b;
+				break;
+			case CONT:
+				this.b[1] = b;
+				break;
+			case ADR:
+				this.b[2] = b;
+				break;
+			}
+		}
+	}
+	@Override
+	public void work() {
+		if(lastinstr != MemInstr.NOOP)
+		{
+			switch(lastinstr & 0xF000)
+			{
+			case MemInstr.SENDALL://effectue le meme travaille de READ
+			case MemInstr.READ:
+				if(!b[0].isUsed() && offset != 0)
+				{
+					try {
+						b[0].call(read(lastadr));
+						b[1].call(MemInstr.WRITE | 0x0100 | (lastinstr & 0x00FF));
+						b[2].call(lastinstr & 0x00FF);
+					} catch (WRException e) {e.printStackTrace();}
+					offset--; lastadr++;
+					if(offset == 0)
+						lastinstr = MemInstr.NOOP;
+				}
+				break;
+				default:
+					break;
+			}
+		} else
+			try {
+				if(b[0].isTransmiting() && b[2].getTransmitedData() == SquelAdr.PROM)
+				{
+					lastinstr = b[1].getTransmitedData();
+					switch(lastinstr & 0xF000)
+					{
+					case MemInstr.READ:
+						offset = (lastinstr & 0x0F00) >> 8;
+						lastadr = b[0].getTransmitedData();
+						break;
+					case MemInstr.SENDALL:
+						offset = size;
+						lastadr = 0x0000;
+						break;
+					//write/reset ne font rien
+					case MemInstr.RESET:
+					case MemInstr.WRITE:
+						lastinstr = MemInstr.NOOP;
+					case MemInstr.NOOP:
+						default:
+							break;
+					}
+				}
+			} catch (WRException e) {e.printStackTrace();}
+	}
+
 	@Override
 	public int read(int adr) throws WRException {
 		if(adr < 0 || adr >= size)
-			throw new WRException(new IndexOutOfBoundsException());
-		return content[adr];
-	}
-
-	@Override
-	public void write(int val, int adr) throws WRException {
-		throw new WRException(null);
-	}
-
-	@Override
-	public void disconnect() {
-		bus = null;
-
-	}
-
-	@Override
-	public void disconnectFrom(AbsComponent c) throws NonConnectedException {
-		if(c == bus)
-			disconnect();
-		else throw new NonConnectedException();
-
-	}
-
-	@Override
-	public void connectTo(AbsComponent c) {
-		if(c.getClass().equals(Bus.class))
-			bus = (Bus)c;
-
-	}
-
-	@Override
-	public void work() {
-		if(bus == null)
-			try {throw new NonConnectedException();} catch (NonConnectedException e1) {e1.printStackTrace();}
-		if(bus.isTransmiting() && !sendall){
-			if(bus.getTransmitedAdresse() == SquelAdr.ROM)
-			{
-				switch(bus.getTransmitedControl() & 0xF000)
-				{
-				case READ:
-					nextAct = new int[3];
-					nextAct[0] = SquelAdr.PROC;
-					try {
-						nextAct[1] = read(bus.getTransmitedData());
-						nextAct[2] = 0x0000;
-						} catch (WRException e) {
-							nextAct[1] = 0x0000;
-							if(e.wasOutOfBound()) 
-								nextAct[2] = ADROUT;
-								
-						}
-					break;
-				case SEND:
-					sendall = true;
-					adrloc = 0;
-					adrcomp = bus.getTransmitedData();
-					break;
-					default:
-						break;
-				}
-				
-			}
-		}
-		else if(sendall)
-		{
-			if(adrloc >= size)
-			{
-				if(!bus.isUsed())
-				{
-					sendall = false;
-					bus.call(SquelAdr.PROC, CPEND, NOOP);
-				}
-				
-			}
-			else{
-				if(!bus.isUsed() && nextAct == null)
-				{
-					bus.call(adrcomp, adrloc, WRITE);
-					nextAct = new int[3];
-					nextAct[0] = adrcomp;
-					try{nextAct[1] = read(adrloc);}catch(WRException e){e.printStackTrace();}
-					nextAct[2] = WRITE;
-					adrloc++;
-				}
-			}
-		}
-		if(nextAct != null && !bus.isUsed())
-		{
-			if(!bus.isUsed())
-			{
-				bus.call(nextAct[0], nextAct[1], nextAct[2]);
-				nextAct = null;
-			}
-		}
-
+			throw new WRException(true);
+		return data[adr];
 	}
 
 	@Override
@@ -138,28 +113,30 @@ public class PROM extends AbsMemory {
 		// TODO Auto-generated method stub
 		return null;
 	}
-	//private
-	private void load(String path) throws FileNotFoundException, IOException
+	
+	private void loadFrom(String path) throws IOException
 	{
 		File f = new File(path);
-		FileInputStream in;
-		if(f.exists())
-		{
-			in = new FileInputStream(f);
-			size = 0x0 | in.read();
-			size = size << 8;
-			size = size | in.read();
-			content = new int[size];
-			for(int n = 0; 0 < in.available() && n<size; n++)
-			{
-				content[n] = 0x0 | in.read();
-				content[n] = content[n] << 8;
-				content[n] = content[n] | in.read();
-			}
-			in.close();
-		}
-		else throw new FileNotFoundException(); 
+		if(!f.exists())
+			throw new FileNotFoundException();
+		FileInputStream in = new FileInputStream(f);
+		size = in.read();
+		size = size << 8;
+		size |= in.read();
 		
+		data = new int[size];
+		int n = 0;
+		while(n < size)
+		{
+			if(in.available() != 0)
+			{
+				data[n] = in.read();
+				data[n] = data[n] << 8;
+				data[n] = in.read();
+			}else data[n] = 0;
+			n++;
+		}
+		in.close();
 	}
 
 }
