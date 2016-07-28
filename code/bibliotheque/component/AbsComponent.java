@@ -88,6 +88,13 @@ public abstract class AbsComponent extends Observable implements Clockable{
 			throw new NonConnectedException();
 		connected.remove(c);
 	}
+	/**
+	 * permet de deconecter l'horloge externe
+	 */
+	public void unsetExternalClock()
+	{
+		try {inck.unslaveSelf();} catch (NonConnectedException e) {}
+	}
 	
 	
 	@Override

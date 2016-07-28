@@ -39,6 +39,8 @@ public class Clock implements Clockable
 	private boolean paused;
 	private ArrayList<Clockable> connected;
 	private Thread t;
+	//ceci est un essai
+	private Clock master;
 	
 	//pour l'ui
 	private JPanel observed = null;
@@ -51,6 +53,7 @@ public class Clock implements Clockable
 		ticksize = 0;
 		connected = new ArrayList<Clockable>();
 		enslaved = false;
+		master = null;
 	}
 	/**
 	 * céé une horloge cadencée
@@ -203,11 +206,15 @@ public class Clock implements Clockable
 		
 	}
 	/**
-	 * synchronize les ticks d'une horloge sur ceux de cette horloge 
+	 * synchronize les ticks d'une horloge sur ceux de cette horloge .
+	 * si cette horloge avait un maitre elle se déconecte.
 	 * @param c l'horloge a synchroniser
 	 */
 	public void enslave(Clock c)
 	{
+		if(c.enslaved)
+			try {c.unslaveSelf();} catch (NonConnectedException e) {}
+		c.master = this;
 		c.setEnslaved(true);
 		this.connected.add(c);
 	}
@@ -245,8 +252,14 @@ public class Clock implements Clockable
 			temp = (Clock)connected.get(connected.indexOf(c));
 			connected.remove(c);
 			temp.enslaved = false;
+			temp.master = null;
 		}
 		else throw new NonConnectedException();
+	}
+	public void unslaveSelf() throws NonConnectedException
+	{
+		if(enslaved)
+			master.unslave(this);
 	}
 	//question
 	/**
