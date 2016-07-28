@@ -9,6 +9,7 @@ import javax.swing.JPanel;
 
 import component.AbsComponent;
 import component.ComponentTypes;
+import component.NonConnectedException;
 import component.WRException;
 import component.bus.AbsBus;
 import component.memory.AbsReadOnlyMemory;
@@ -53,6 +54,15 @@ public class PROM extends AbsReadOnlyMemory {
 	}
 	@Override
 	public void work() {
+		try{
+			if(b[0] == null || b[1] == null || b[2] == null)
+				throw new NonConnectedException();
+		}catch (NonConnectedException e)
+		{
+			e.printStackTrace();
+			return;
+		}
+			
 		if(lastinstr != MemInstr.NOOP)
 		{
 			switch(lastinstr & 0xF000)
