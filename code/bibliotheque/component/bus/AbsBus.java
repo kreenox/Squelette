@@ -46,8 +46,11 @@ public abstract class AbsBus extends AbsComponent {
 	 */
 	public void call(int dat)
 	{
-		if(etat == BusState.FREE);
+		if(etat == BusState.FREE)
+		{
 			data = dat;
+			etat = BusState.CALLED;
+		}
 	}
 	/**
 	 * fait transiter les donnés par le bus
