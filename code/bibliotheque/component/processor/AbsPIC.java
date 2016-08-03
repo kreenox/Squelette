@@ -21,7 +21,7 @@ public abstract class AbsPIC extends AbsProcessor {
 		not = new ArrayList<AbsProcessor>();
 	}
 	/**
-	 * permet de signaler au <emph>PIC</emph> qu'un composant demande une interuption
+	 * permet de signaler au <code>PIC</code> qu'un composant demande une interuption
 	 * le pic doit, à chaque tick d'horloge verifier tout le pin et si necessaire notifier tout les composants qui ont besoin de l'etre
 	 * @param num le numero de la pin a changer
 	 * @param val la valeur a mettre sur la pin : true pour lever une exception  false pour ne rien faire
@@ -42,7 +42,7 @@ public abstract class AbsPIC extends AbsProcessor {
 	
 	/**
 	 * ajoute un composant qu'il faut prévenir d'une interruption
-	 * @param p
+	 * @param p le processeur a prévenir
 	 */
 	public void addNotified(AbsProcessor p)
 	{
