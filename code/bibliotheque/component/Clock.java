@@ -56,7 +56,7 @@ public class Clock implements Clockable
 		master = null;
 	}
 	/**
-	 * céé une horloge cadencée
+	 * créé une horloge qui emmet un tick tout les <code>size</code> millisecondes
 	 * @param ticks la taille d'un tick en ms
 	 */
 	public Clock(int ticks)
@@ -86,6 +86,10 @@ public class Clock implements Clockable
 	public int getTickSize()
 	{return ticksize;}
 	//a décommenter plus tard
+	/**
+	 * permet de recuperer l'UI de cette horloge
+	 * @return un panel pour afficher l'état de l'horloge
+	 */
 	public JPanel getUI() {
 		
 		class Panel extends JPanel implements Observer{
@@ -256,6 +260,10 @@ public class Clock implements Clockable
 		}
 		else throw new NonConnectedException();
 	}
+	/**
+	 * permet a l'horloge de se déconnecter de son horloge maitresse
+	 * @throws NonConnectedException si l'horloge n'a pas de maitresse
+	 */
 	public void unslaveSelf() throws NonConnectedException
 	{
 		if(enslaved)
@@ -269,8 +277,8 @@ public class Clock implements Clockable
 	public boolean isPaused()
 	{return paused;}
 	//redefinition
-	@Override
-	public boolean equals(Object o)
+	/*@Override
+	public boolean equals(Object o)// pas sur de devoir redeffinir
 	{
 		if(o == this)
 			return true;
@@ -284,7 +292,7 @@ public class Clock implements Clockable
 							return true;
 		}
 		return false;
-	}
+	}*/
 	@Override
 	public void work() {//normalement c'est bon
 		if(!enslaved)//si l'horloge n'est pas gérée par l'exterieur
