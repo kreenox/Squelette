@@ -19,7 +19,8 @@ public class PROM extends AbsReadOnlyMemory {
 	private int size;
 	private int[] data;
 	private AbsBus[] b;
-	private int offset;
+	private int offset16;//pour l'offset d'un envoi
+	private int offset;//offset pour la totalite des données a evoyer
 	private int lastadr;
 	private int lastinstr;
 	
@@ -27,6 +28,7 @@ public class PROM extends AbsReadOnlyMemory {
 	{
 		lastadr = 0;
 		lastinstr = 0;
+		offset16 = 0;
 		offset = 0;
 		b = new AbsBus[3];
 		loadFrom(path);
@@ -54,7 +56,7 @@ public class PROM extends AbsReadOnlyMemory {
 	}
 	@Override
 	public void work() {
-		try{
+		try{// si pas de bus connecté on envoi une exception
 			if(b[0] == null || b[1] == null || b[2] == null)
 				throw new NonConnectedException();
 		}catch (NonConnectedException e)
@@ -64,20 +66,39 @@ public class PROM extends AbsReadOnlyMemory {
 		}
 			
 		if(lastinstr != MemInstr.NOOP)
-		{
+		{//si une instruction est en cours d'execution
 			switch(lastinstr & 0xF000)
 			{
-			case MemInstr.SENDALL://effectue le meme travaille de READ
+			case MemInstr.SENDALL://effectue le meme travaille que READ a une difference près
+				if(!b[0].isUsed() && offset16 == 0)//si l'envoi en cours est terminé et que le bus est libre
+				{
+					if(offset != 0)//si il reste des données a envoyer
+					{
+						if(offset < 16)
+						{
+							offset16 = offset;
+						}
+						else if(lastadr % 16 == 0)
+						{
+							offset16 = 16;
+						}
+						
+					b[0].call(lastadr);
+					b[1].call(MemInstr.WRITE | (offset16 << 8));
+					b[2].call(lastinstr & 0x00FF);
+					
+					}else lastinstr = MemInstr.NOOP;
+				}
 			case MemInstr.READ:
-				if(!b[0].isUsed() && offset != 0)
+				if(!b[0].isUsed() && offset16 != 0)
 				{
 					try {
 						b[0].call(read(lastadr));
 						b[1].call(MemInstr.WRITE | 0x0100 | (lastinstr & 0x00FF));
 						b[2].call(lastinstr & 0x00FF);
 					} catch (WRException e) {e.printStackTrace();}
-					offset--; lastadr++;
-					if(offset == 0)
+					offset16--; lastadr++;
+					if(offset16 == 0 && (lastinstr & 0xF000) == MemInstr.READ)
 						lastinstr = MemInstr.NOOP;
 				}
 				break;
@@ -92,13 +113,16 @@ public class PROM extends AbsReadOnlyMemory {
 					switch(lastinstr & 0xF000)
 					{
 					case MemInstr.READ:
-						offset = (lastinstr & 0x0F00) >> 8;
+						offset16 = (lastinstr & 0x0F00) >> 8;
 						lastadr = b[0].getTransmitedData();
 						break;
 					case MemInstr.SENDALL:
 						offset = size;
 						lastadr = 0x0000;
 						break;
+					//case MemInstr.SETOFST:
+						//lastadr = b[0].getTransmitedData();
+						//apres on remet NOOP dans lastinstr
 					//write/reset ne font rien
 					case MemInstr.RESET:
 					case MemInstr.WRITE:
