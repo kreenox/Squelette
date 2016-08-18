@@ -1,205 +1,180 @@
 package squelette;
 
-import java.util.Observable;
-import java.util.Observer;
-
-import javax.swing.BoxLayout;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.ScrollPaneConstants;
 
 import component.AbsComponent;
+import component.ComponentTypes;
 import component.NonConnectedException;
+import component.WRException;
 import component.memory.AbsMemory;
-import component.memory.WRException;
 
-/**
- * permet de gerer la ram d'une mémoire
- * @author Fabien ANXA
- * @version 0.0.0
- * @since 0.0.0
- *
- */
 public class RAM extends AbsMemory {
-	
 
-	private int content[];
+	private int[] data;
 	private int size;
-	private int bitsize;
-	private Bus bus;//a changer plus tard
-	private int[] nextBusCall;//temporaire en attendant une meilleure solution
-	private boolean waitNext;
-	//pour le getUI
-	private JPanel observed = null;
+	private Bus[] b;
 	
-	//sert a stocker l'addresse de la prochaine ecriture
-	private int adr = -1;
+	private int offset16;
+	private int offset;
+	private int lastadr;
+	private int lastinstr;
 	
-	public RAM(int size)
-	{
+	public RAM(int size){
 		this.size = size;
-		bitsize = 8;
-		content = new int[size];
-		reset();
+		data = new int[size];
+		for(int n = 0; n < size; n++)
+			data[n] = 0x0000;
+		offset16 = 0;
+		offset = 0;
+		lastadr = 0;
+		lastinstr = 0;
+		b = new Bus[3];
 	}
-	public RAM(int size, int bitsize)
+	@Override
+	public void work() {
+		try{
+			if(b[0] == null || b[1] == null || b[2] == null)
+				throw new NonConnectedException();
+		}catch (NonConnectedException e){
+			e.printStackTrace();
+			return;
+		}
+		if(lastinstr != MemInstr.NOOP)
+		{
+			try{
+				switch(lastinstr & 0xF000)
+				{
+				case MemInstr.SENDALL:
+					if(!b[0].isUsed() && offset16 != 0)
+					{
+						if(offset != 0)
+							if(offset < 16)
+							{
+								offset16 = offset;
+							}
+							else if(offset % 16 == 0)
+							{
+								offset16 = 16;
+							}
+						b[0].call(lastadr);
+						b[1].call(MemInstr.WRITE | (lastinstr << 8));
+						b[2].call(lastinstr & 0x00FF);
+					}
+				case MemInstr.READ:
+					if(!b[0].isUsed() && offset16 != 0)
+					{
+						b[0].call(read(lastadr));
+						b[1].call(0x0000);
+						b[2].call(lastinstr & 0x00FF);
+						lastadr++;
+						offset16--;
+						if(offset == 0 && (lastinstr & 0xFF00) == MemInstr.READ)
+							lastinstr = MemInstr.NOOP;
+					}
+					
+					break;
+				case MemInstr.WRITE:
+					if(offset16 != 0)
+					{
+						if(b[0].isTransmiting() && b[2].getTransmitedData() == SquelAdr.RAM)
+						{
+							write(lastadr, b[0].getTransmitedData());
+							offset16--;
+							lastadr++;
+						}
+					}else lastinstr = MemInstr.NOOP;
+				case MemInstr.RESET:
+					if(offset16 != 0)
+					{
+						reset(lastadr);
+						offset16--;
+						lastadr++;
+					}else lastinstr = MemInstr.NOOP;
+					default:
+						break;
+				}
+			}catch(WRException e){
+				e.printStackTrace();
+				return;
+			}
+			
+		}else 
+			try{
+				if(b[0].isTransmiting() && b[2].getTransmitedData() == SquelAdr.RAM)
+				{
+					lastinstr = b[1].getTransmitedData();
+					switch(lastinstr & 0xF000)
+					{
+					case MemInstr.READ:
+						offset16 = (lastinstr & 0x0F00) >> 8;
+						lastadr = b[0].getTransmitedData();
+						break;
+					case MemInstr.SENDALL:
+						offset = size;
+						lastadr = 0x0000;
+					case MemInstr.RESET:
+						offset16 = (lastinstr & 0x0F00) >> 8;
+						lastadr = b[0].getTransmitedData();
+						reset(lastadr);
+						offset16--;
+						lastadr++;
+					case MemInstr.WRITE:
+						offset16 = (lastinstr & 0x0F00) >> 8;
+						lastadr = b[0].getTransmitedData();
+						default:
+							lastinstr = MemInstr.NOOP;
+					}
+				}
+			}catch(WRException e){}
+
+	}
+
+	@Override
+	public void connectTo(AbsComponent c)
 	{
-		this.size = size;
-		this.bitsize = bitsize;
-		content = new int[size];
-		reset();
+		if(c.getComponentType() == ComponentTypes.BUS)
+		{
+			Bus temp = (Bus) c;
+			switch(temp.getBusType())
+			{
+			case DATA:
+				b[0] = temp;
+				break;
+			case CONT:
+				b[1] = temp;
+				break;
+			case ADR:
+				b[2] = temp;
+				break;
+			}
+		}
 	}
-	//set
-	//get
-	public int getSize()
-	{return size;}
-	public int getBitSize()
-	{return bitsize;}
-	//action
-	//question
-	//redefinition
+	
 	@Override
 	public int read(int adr) throws WRException {
-		if(adr < 0 || adr >= size)
-			throw new WRException(new IndexOutOfBoundsException());
-		return content[adr];
+		if(adr < 0 || adr > size)
+			throw new WRException(true);
+		return data[adr];
 	}
 
 	@Override
 	public void write(int val, int adr) throws WRException {
-		if(adr < 0 || adr >= size)
-			throw new WRException(new IndexOutOfBoundsException());
-		content[adr] = val;
-
+		if(adr < 0 || adr > size)
+			throw new WRException(true);
+		data[adr] = val;
 	}
 
 	@Override
-	public void disconnect() {
-		bus = null;
-	}
-
-	@Override
-	public void disconnectFrom(AbsComponent c) throws NonConnectedException {
-		if(c != bus)
-			throw new NonConnectedException();
-		disconnect();
-	}
-
-	@Override
-	public void connectTo(AbsComponent c) {
-		if(c.getClass().equals(Bus.class))
-			bus = (Bus)c;
-	}
-
-	@Override
-	public boolean equals(Object o)
-	{return o == this;}
-	
-	@Override
-	public void work() {
-		if(bus == null)
-			try {throw new NonConnectedException();} catch (NonConnectedException e) {e.printStackTrace();}
-		if(bus.isTransmiting())
-		{
-			if(bus.getTransmitedAdresse() == SquelAdr.RAM)
-			{
-				switch(bus.getTransmitedControl())
-				{
-				case READ://action de lecture
-					nextBusCall = new int[3];
-					nextBusCall[0] = SquelAdr.PROC;
-					adr = bus.getTransmitedData();
-					if(observed != null){
-						setChanged();
-						notifyObservers();
-					}
-					try {
-						nextBusCall[1] = read(adr);
-						nextBusCall[2] = 0x0;
-					} catch (WRException e) {
-						if(e.wasOutOfBound())
-							nextBusCall[2] = ADROUT;
-						nextBusCall[1] = adr;
-					}
-					adr = -1;
-					break;
-				case RST:
-					try{write(bus.getTransmitedControl(), 0x0000);}catch (WRException e){}
-					break;
-				case WRITE:
-					
-					if(!waitNext)
-					{
-						adr = bus.getTransmitedData();
-						waitNext = true;
-					}
-					else
-					{
-						try{write(bus.getTransmitedData(), adr);}catch (WRException e){e.printStackTrace();}
-						waitNext = false;
-						if(observed != null){
-							setChanged();
-							notifyObservers();
-						}
-					}
-					break;
-					default:
-						
-						break;
-				}
-			}
-		}
-		if(nextBusCall != null && !bus.isUsed())
-		{
-			bus.call(nextBusCall[0], nextBusCall[1], nextBusCall[2]);
-			nextBusCall = null;
-		}
-		
-		
+	public void reset(int adr) throws WRException {
+		if(adr < 0 || adr > size)
+			throw new WRException(true);
+		data[adr] = 0x0000;
 	}
 
 	@Override
 	public JPanel getUI() {
-		
-		class Panel extends JPanel implements Observer{
-			private static final long serialVersionUID = 1L;
-			private JTable data;
-
-			public Panel(){
-				this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
-				this.add(new JLabel("RAM :"));
-				data = new JTable(size, 2);
-				data.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-				for(int n = 0; n < size; n++){
-					data.setValueAt(divers.Affichages.hexStringFromInt(n, 4), n, 0);
-					data.setValueAt(divers.Affichages.hexStringFromInt(content[n], 4), n, 1);
-				}
-				this.add(new JScrollPane(data, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER));
-			}
-			public void update(Observable arg0, Object arg1) {
-				data.setValueAt(divers.Affichages.hexStringFromInt(content[adr], 4), adr, 1);
-				data.changeSelection(adr, 0, false, false);
-				data.changeSelection(adr, 0, true, true);
-			}
-			
-		}
-		
-		if(observed == null)
-		{
-			Panel pane = new Panel();
-			this.addObserver(pane);
-			observed = pane;
-		}
-		return observed;
-	}
-	//private
-	private void reset()
-	{
-		for(int n = 0; n < size; n++)
-			content[n] = 0x00000000;
-		waitNext = false;
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
