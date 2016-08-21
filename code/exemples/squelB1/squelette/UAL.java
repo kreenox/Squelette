@@ -3,162 +3,118 @@ package squelette;
 import component.processor.unit.AbsUAL;
 import component.processor.unit.Registre;
 
-public class UAL extends AbsUAL{
+public class UAL extends AbsUAL {
 
-	//flags
-		private boolean DEB = false;//il y a une retenue
-		private boolean NEG = false;//la valeur dans sortie est negative
-		private boolean ZERO = false;//la valeur dans sortie est nulle
-		private boolean ERR = false;//le calcul contient une erreure
-		
-		private int mask = 0xFFFF;
-		
-	public UAL()
+	private Registre mot;
+	
+	public UAL(Registre me)
 	{
-		e1 = new Registre();
-		e2 = new Registre();
-		s = new Registre();
-		instruction = 0x0;
-		DEB = NEG = ZERO = false;
+		mot = me;
+		e1 = e2 = s = null;
 	}
-	//set
-	//get
-	public boolean getDebordementFlag()
-	{return DEB;}
-	public boolean getErrCalcFlag()
-	{return ERR;}
-	public boolean getNegativeFlag()
-	{return NEG;}
-	public boolean getZeroFlag()
-	{return ZERO;}
-	//action
-	public void work() {
-
-	int tempres;
-	switch(instruction)
+	
+	public void work()
 	{
-	case SquelInstr.ADD:
-		tempres = e1.read() + e2.read();
-		testflag(tempres);
-		s.write(tempres & mask);
-		break;
-	case SquelInstr.SUB:
-		tempres = e1.read() - e2.read();
-		testflag(tempres);
-		s.write(tempres & mask);
-		break;
-	case SquelInstr.MUL:
-		tempres = e1.read() * e2.read();
-		testflag(tempres);
-		s.write(tempres & mask);
-		break;
-	case SquelInstr.DIV:
-		if(e2.read() == 0){
-			ERR = true;
-			ZERO = NEG = DEB = false;
-			s.write(0x0000);
-			break;
-		}
-		tempres = e1.read() / e2.read();
-		testflag(tempres);
-		s.write(tempres & mask);
-		break;
-	case SquelInstr.MOD:
-		if(e2.read() == 0x0000){
-			ERR = true;
-			ZERO = NEG = DEB = false;
-			break;
-		}
-		tempres = e1.read() % e2.read();
-		testflag(tempres);
-		s.write(tempres & mask);
-		break;
-	case SquelInstr.AND:
-		tempres = e1.read() & e2.read();
-		testflag(tempres);
-		s.write(tempres & mask);
-		break;
-	case SquelInstr.OR:
-		tempres = e1.read() | e2.read();
-		testflag(tempres);
-		s.write(tempres & mask);
-		break;
-	case SquelInstr.XOR:
-		tempres = ~(e1.read()) & e2.read() | e1.read() & ~(e2.read());
-		testflag(tempres);
-		s.write(tempres & mask);
-		break;
-	case SquelInstr.NOT:
-		tempres = ~e1.read();
-		testflag(tempres);
-		s.write(tempres & mask);
-		break;
-	case SquelInstr.INC:
-		tempres = e1.read() + 1;
-		testflag(tempres);
-		s.write(tempres & mask);
-		break;
-	case SquelInstr.DEC:
-		tempres = e1.read() - 1;
-		testflag(tempres);
-		s.write(tempres & mask);
-		break;
-	case SquelInstr.ROL:
-		tempres = e1.read() << 1;
-		testflag(tempres);
-		s.write(tempres & mask);
-		break;
-	case SquelInstr.ROR:
-		tempres = e1.read() >>> 1;
-		testflag(tempres);
-		s.write(tempres & mask);
-		break;
-	case SquelInstr.SHL://a revoir
-		tempres = e1.read() << 1;
-		testflag(tempres);
-		if(DEB)
-			tempres = tempres | 0x0001;
-		s.write(tempres & mask);
-		break;
-	case SquelInstr.SHR://a revoir
-		tempres = e1.read();
-		if((tempres & 0x0001) != 0)
+
+		int temp;
+		boolean bit;
+		lowerErrCalc();
+		switch(instruction)
 		{
-			tempres = tempres >>> 1;
-			tempres = tempres | 0x8000;
-		}else tempres = tempres >>> 1;
-		testflag(tempres);
-		s.write(tempres & mask);
-		break;
-	case SquelInstr.CMP:
-		tempres = e1.read() - e2.read();
-		testflag(tempres);
-		break;
-		
-		default:
+		//operations binaires
+		case SquelInstr.ADD:
+			s.write(buildEtat(e1.read() + e2.read()));
 			break;
+		case SquelInstr.SUB:
+			s.write(buildEtat(e1.read() - e2.read()));
+			break;
+		case SquelInstr.MUL:
+			s.write(buildEtat(e1.read() * e2.read()));
+			break;
+		case SquelInstr.DIV:
+			if(e2.read() == 0)
+			{
+				riseErrCalc();
+			}
+			s.write(buildEtat(e1.read() / e2.read()));
+			break;
+		case SquelInstr.MOD:
+			s.write(buildEtat(e1.read() % e2.read()));
+			break;
+		case SquelInstr.OR:
+			s.write(buildEtat(e1.read() | e2.read()));
+			break;
+		case SquelInstr.AND:
+			s.write(buildEtat(e1.read() & e2.read()));
+			break;
+		case SquelInstr.XOR:
+			s.write(buildEtat(e1.read() ^ e2.read()));
+			break;
+		case SquelInstr.CMP:
+			buildEtat(e1.read() - e2.read());
+			break;
+		//unaires
+		case SquelInstr.NOT:
+			s.write(buildEtat(~e1.read()));
+			break;
+		case SquelInstr.INC:
+			s.write(buildEtat(e1.read() + 1));
+			break;
+		case SquelInstr.DEC:
+			s.write(buildEtat(e1.read() - 1));
+			break;
+		case SquelInstr.ROL:
+			s.write(buildEtat(e1.read() << 1));
+			break;
+		case SquelInstr.ROR:
+			s.write(buildEtat(e1.read() >> 1));
+			break;
+		case SquelInstr.SHL:
+			temp = e1.read();
+			if((temp & 0x8000) != 0)
+				bit = true;
+			else bit = false;
+			temp = temp << 1;
+			if(bit)
+				temp = temp | 0x8000;
+			s.write(buildEtat(temp));
+			break;
+		case SquelInstr.SHR:
+			temp = e1.read();
+			if((temp & 0x0001) != 0)
+				bit = true;
+			else bit = false;
+			temp = temp >> 1;
+			if(bit)
+				temp = temp | 0x0001;
+			s.write(buildEtat(temp));
+			break;
+			default:
+				break;
+		}
 	}
-
-}
-	//question
-	//redefinition
 	
+	private void riseErrCalc()
+	{mot.write(mot.read() | 0x0008);}
 	
-	private void testflag(int val)
+	private void lowerErrCalc()
+	{mot.write(mot.read() & 0xFFF7);}
+	
+	private int buildEtat(int val)
 	{
-		ERR = false;
-		
+		//zero flag
 		if(val == 0)
-			ZERO = true;
-		else ZERO = false;
-
-		if((val & mask) != 0)
-			DEB = true;
-		else DEB = false;
-
+			mot.write(mot.read() | 0x0001);
+		else mot.write(mot.read() & 0xFFFE);
+		//negative flag
 		if(val < 0)
-			NEG = true;
-		else NEG = false;
+			mot.write(mot.read() | 0x0002);
+		else mot.write(mot.read() & 0xFFFD);
+		//debordement flag
+		if((val & 0xFFFF0000) != 0)
+			mot.write(mot.read() | 0x0004);
+		else mot.write(mot.read() & 0xFFFB);
+		
+		return (val & 0xFFFF);
 	}
-
 }
