@@ -2,37 +2,36 @@ package squelette;
 
 import component.processor.unit.AbsDecodeur;
 
-public class Decodeur extends AbsDecodeur{
-	private int instruction;
-	private int r1;
-	private int r2;
+public class Decodeur extends AbsDecodeur {
+	
+	private int instr;
+	private int arg1;
+	private int arg2;
 	
 	public Decodeur()
-	{instruction = r1 = r2 = 0x0000;}
-	//set
-	//get
-	public int getInstruction()
-	{return instruction;}
-	public int getR1()
-	{return r1;}
-	public int getR2()
-	{return r2;}
-	//action
-	public void decode(int instr)
-	{
-		if((instr & 0x0F00) == 0x0F00)
+	{instr = arg1 = arg2 = 0;}
+	
+	public int getInstr()
+	{return instr;}
+	public int getArg1()
+	{return arg1;}
+	public int getArg2()
+	{return arg2;}
+	@Override
+	public void decode(int instruction) {
+		if((instruction & 0x0F00) == 0x0F00)
 		{
-			instruction = instr & 0xFFF0;
-			r1 = instr & 0x000F;
+			instr = instruction & 0xFFF0;
+			arg1 = instruction & 0x000F;
+			arg2 = 0;
 		}
 		else
 		{
-			instruction = instr & 0xFF00;
-			r1 = (instr & 0x00F0) >> 4;
-			r2 = instr & 0x000F;
+			instr = instruction & 0xFF00;
+			arg1 = instruction & 0x00F0;
+			arg2 = instruction & 0x000F;
 		}
-		
+
 	}
-	//question
-	//redefinition
+
 }
