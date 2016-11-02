@@ -20,6 +20,9 @@ public abstract class AbsComponent extends Observable implements Clockable{
 	private ArrayList<AbsComponent> connected;
 	private Clock inck;//horloge interne
 	
+	/**
+	 * constructeur par defaut d'un composant
+	 */
 	public AbsComponent()
 	{
 		inck = new Clock();
