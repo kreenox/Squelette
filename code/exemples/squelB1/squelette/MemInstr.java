@@ -1,10 +1,10 @@
 package squelette;
 
 public class MemInstr {
-	public static final int NOOP = 0x0000;//ne fait rien
-	public static final int READ = 0x1000;//0x1nAD lit n emplacement et les envoi a ADresse 
-	public static final int WRITE = 0x2000;//0x2n00 ecrit dans la mémoire puis déplace l'offset de n vers le haut
-	public static final int RESET = 0x3000;//0x3n00 remet a zero n emplacements
-	public static final int SENDALL = 0x4000;//0x40AD envoi tout le contenu de la memeoire a ADresse
-	public static final int SETOFST = 0x5000; //deplace l'offset de la mémoire
+	public static final int NOOP = 		0x0000;//ne fait rien
+	public static final int WRITE = 	0b1000000000000000;//lecture si non utilisé
+	public static final int PROC =		0b0100000000000000;//si utilisé on ne lit pas ROM et PERI
+	public static final int PERI = 		0b0010000000000000;//si non utilisé c'est la memoire qui recupere
+	public static final int ROM = 		0b0001000000000000;//si non utilisé c'est la ram qui est utilisé
+	//le reste des bits sont utilisé pour le controle
 }

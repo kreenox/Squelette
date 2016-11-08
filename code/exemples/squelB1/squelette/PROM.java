@@ -19,18 +19,16 @@ public class PROM extends AbsReadOnlyMemory {
 	private int size;
 	private int[] data;
 	private AbsBus[] b;
-	private int offset16;//pour l'offset d'un envoi
-	private int offset;//offset pour la totalite des données a evoyer
-	private int lastadr;
-	private int lastinstr;
+	private boolean send;
+	private int TOsend;
+	
 	
 	public PROM(String path) throws IOException
 	{
-		lastadr = 0;
-		lastinstr = 0;
-		offset16 = 0;
-		offset = 0;
+		super();
 		b = new AbsBus[3];
+		send = false;
+		TOsend = 0x0;
 		loadFrom(path);
 	}
 	//redefinition
@@ -55,7 +53,8 @@ public class PROM extends AbsReadOnlyMemory {
 		}
 	}
 	@Override
-	public void work() {
+	public void work() 
+	{
 		try{// si pas de bus connecté on envoi une exception
 			if(b[0] == null || b[1] == null || b[2] == null)
 				throw new NonConnectedException();
@@ -64,75 +63,31 @@ public class PROM extends AbsReadOnlyMemory {
 			e.printStackTrace();
 			return;
 		}
-			
-		if(lastinstr != MemInstr.NOOP)
-		{//si une instruction est en cours d'execution
-			switch(lastinstr & 0xF000)
-			{
-			case MemInstr.SENDALL://effectue le meme travaille que READ a une difference près
-				if(!b[0].isUsed() && offset16 == 0)//si l'envoi en cours est terminé et que le bus est libre
-				{
-					if(offset != 0)//si il reste des données a envoyer
-					{
-						if(offset < 16)
-						{
-							offset16 = offset;
-						}
-						else if(lastadr % 16 == 0)
-						{
-							offset16 = 16;
-						}
+		try{
+			if(b[0].isTransmiting())//si le bus transmet
+				if(((b[1].getTransmitedData() & MemInstr.PROC) != MemInstr.PROC) && 
+						((b[1].getTransmitedData() & MemInstr.ROM) == MemInstr.ROM) &&
+						((b[1].getTransmitedData() & MemInstr.PERI) != MemInstr.PERI))
+				{//si le control indique que la transmition est destinée a la PROM
+					if((b[1].getTransmitedData() & MemInstr.WRITE) != MemInstr.WRITE)
+					{//si on est en lecture
+						read(b[2].getTransmitedData());//on lit la mémoire a l'adresse reçue
+						//trouver un moyen d'envoyer la valeure
 						
-					b[0].call(lastadr);
-					b[1].call(MemInstr.WRITE | (offset16 << 8));
-					b[2].call(lastinstr & 0x00FF);
-					
-					}else lastinstr = MemInstr.NOOP;
-				}
-			case MemInstr.READ:
-				if(!b[0].isUsed() && offset16 != 0)
-				{
-					try {
-						b[0].call(read(lastadr));
-						b[1].call(MemInstr.WRITE | 0x0100 | (lastinstr & 0x00FF));
-						b[2].call(lastinstr & 0x00FF);
-					} catch (WRException e) {e.printStackTrace();}
-					offset16--; lastadr++;
-					if(offset16 == 0 && (lastinstr & 0xF000) == MemInstr.READ)
-						lastinstr = MemInstr.NOOP;
-				}
-				break;
-				default:
-					break;
-			}
-		} else
-			try {
-				if(b[0].isTransmiting() && b[2].getTransmitedData() == SquelAdr.PROM)
-				{
-					lastinstr = b[1].getTransmitedData();
-					switch(lastinstr & 0xF000)
+					}else //si on est en écriture
 					{
-					case MemInstr.READ:
-						offset16 = (lastinstr & 0x0F00) >> 8;
-						lastadr = b[0].getTransmitedData();
-						break;
-					case MemInstr.SENDALL:
-						offset = size;
-						lastadr = 0x0000;
-						break;
-					//case MemInstr.SETOFST:
-						//lastadr = b[0].getTransmitedData();
-						//apres on remet NOOP dans lastinstr
-					//write/reset ne font rien
-					case MemInstr.RESET:
-					case MemInstr.WRITE:
-						lastinstr = MemInstr.NOOP;
-					case MemInstr.NOOP:
-						default:
-							break;
+						//on fait rien
 					}
 				}
-			} catch (WRException e) {e.printStackTrace();}
+				else if(send && !b[0].isUsed())
+				{
+					b[0].call(TOsend);
+					b[1].call(MemInstr.WRITE | MemInstr.PROC);
+					b[2].call(0);
+				}
+			}catch(WRException e)
+			{e.printStackTrace();}
+		
 	}
 
 	@Override
