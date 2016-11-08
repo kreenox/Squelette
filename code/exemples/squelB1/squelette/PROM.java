@@ -65,28 +65,31 @@ public class PROM extends AbsReadOnlyMemory {
 		}
 		try{
 			if(b[0].isTransmiting())//si le bus transmet
+			{
 				if(((b[1].getTransmitedData() & MemInstr.PROC) != MemInstr.PROC) && 
 						((b[1].getTransmitedData() & MemInstr.ROM) == MemInstr.ROM) &&
 						((b[1].getTransmitedData() & MemInstr.PERI) != MemInstr.PERI))
 				{//si le control indique que la transmition est destinée a la PROM
 					if((b[1].getTransmitedData() & MemInstr.WRITE) != MemInstr.WRITE)
 					{//si on est en lecture
-						read(b[2].getTransmitedData());//on lit la mémoire a l'adresse reçue
-						//trouver un moyen d'envoyer la valeure
+						TOsend = read(b[2].getTransmitedData());//on lit la mémoire a l'adresse reçue et on la met en attente pour l'envoyer
+						send = true;
 						
 					}else //si on est en écriture
 					{
 						//on fait rien
 					}
 				}
-				else if(send && !b[0].isUsed())
-				{
-					b[0].call(TOsend);
-					b[1].call(MemInstr.WRITE | MemInstr.PROC);
-					b[2].call(0);
-				}
-			}catch(WRException e)
-			{e.printStackTrace();}
+			}
+			else if(send && !b[0].isUsed())
+			{
+				b[0].call(TOsend);
+				b[1].call(MemInstr.WRITE | MemInstr.PROC);
+				b[2].call(0);
+				send = false;
+			}
+		}catch(WRException e)
+		{e.printStackTrace();}
 		
 	}
 
