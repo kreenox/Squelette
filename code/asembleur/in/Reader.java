@@ -9,6 +9,12 @@ import java.io.StringWriter;
 
 public class Reader {
 
+	/**
+	 * permet de recuperer le contenu d'un fichier
+	 * @param f le chemin du fichier
+	 * @return le contenu du fichier sous la forme d'une chaine
+	 * @throws IOException
+	 */
 	public static String extract(File f) throws IOException
 	{
 		if(!f.exists())
@@ -25,6 +31,11 @@ public class Reader {
 
 	}
 	
+	/**
+	 * découpe une chaine de caractère en tableau de chaine dont chaque élément correspond a une ligne
+	 * @param s la chaine a découper
+	 * @return un tableau de chaine
+	 */
 	public static String[] getLines(String s)
 	{
 		return s.split("\n");
