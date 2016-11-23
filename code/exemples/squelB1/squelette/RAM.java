@@ -1,6 +1,10 @@
 package squelette;
 
-import javax.swing.JPanel;
+import java.awt.Dimension;
+import java.util.Observable;
+import java.util.Observer;
+
+import javax.swing.*;
 
 import component.AbsComponent;
 import component.ComponentTypes;
@@ -15,6 +19,9 @@ public class RAM extends AbsMemory {
 	private Bus[] b;
 	private boolean send;
 	private int TOsend;
+	
+	
+	private JPanel pane = null;
 	
 	
 	public RAM(int size)
@@ -105,6 +112,11 @@ public class RAM extends AbsMemory {
 		if(adr < 0 || adr > size)
 			throw new WRException(true);
 		data[adr] = val;
+		if(pane != null)
+		{
+			setChanged();
+			notifyObservers(adr);
+		}
 	}
 
 	@Override
@@ -116,8 +128,59 @@ public class RAM extends AbsMemory {
 
 	@Override
 	public JPanel getUI() {
-		// TODO Auto-generated method stub
-		return null;
+
+		class Panel extends JPanel implements Observer{
+
+			private static final long serialVersionUID = 1L;
+			
+			private JTable tab;
+			
+			@SuppressWarnings("serial")
+			public Panel()
+			{
+				
+				//initialisation de la table
+				String[] names = {"Adresse", "Valeur"};
+				Object[][] o = new Object[0xFFFF][2];
+				tab = new JTable(o, names){//une JTable non editable
+					@Override
+					public boolean isCellEditable(int row, int col)
+					{return false;}
+				};
+				for(int n = 0; n < size; n++)
+				{
+					tab.setValueAt(divers.Affichages.hexStringFromInt(n, 4), n, 0);
+					tab.setValueAt(divers.Affichages.hexStringFromInt(data[n], 4), n, 1);
+				}
+				//mise en place des composants
+				this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
+				this.setAutoscrolls(true);
+				add(new JLabel("RAM"));
+				add(new JScrollPane(tab, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER));
+			}
+
+			@Override
+			public void update(Observable arg0, Object arg1) {
+				if(arg1.getClass() == Integer.class)
+				{
+					int temp = ((Integer)arg1).intValue();
+					tab.setValueAt(divers.Affichages.hexStringFromInt(data[temp], 4), temp, 1);
+					tab.clearSelection();
+					tab.addRowSelectionInterval(temp, temp);
+				}
+				
+			}
+			
+		}
+		if(pane == null)
+		{
+			Panel p = new Panel();
+			p.setMaximumSize(new Dimension(200, 10000));
+			p.setMinimumSize(new Dimension(200, 500));
+			addObserver(p);
+			pane = p;
+		}
+		return pane;
 	}
 
 }
