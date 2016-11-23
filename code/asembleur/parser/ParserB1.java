@@ -6,6 +6,52 @@ import parser.exception.NotInstructionException;
 public class ParserB1 {
 
 	/**
+	 * permet de parser une chaine en chiffre
+	 * on regarde le préfixe du nombre si il commence par :
+	 * - 0 on regarde la suite
+	 * -> si c'est un chiffre il s'agit d'une base octale
+	 * -> si c'est un x il s'agit d'une base hexadecimale
+	 * -> si c'est un b il s'agit d'une base binaire
+	 * - si c'est un autre chiffre c'est une base decimale
+	 * le reste r'envoi une exception
+	 * @param s une chaine de caractère
+	 * @return la valeur con tenue dans la chaine
+	 */
+	public static int parseNumber(String s)throws NumberFormatException
+	{
+		switch(s.trim().charAt(0))
+		{
+		case '0'://format spécial
+			switch(s.trim().toLowerCase().charAt(1))
+			{
+			case 'x'://hexadecimal
+				return Integer.valueOf(s.substring(2), 16);
+			case 'b'://binaire
+				return Integer.valueOf(s.substring(2), 2);
+			case '0':
+			case '1':
+			case '2':
+			case '3':
+			case '4':
+			case '5':
+			case '6':
+			case '7':
+				return Integer.valueOf(s.substring(2), 8);
+			}
+		case '1':
+		case '2':
+		case '3':
+		case '4':
+		case '5':
+		case '6':
+		case '7':
+		case '8':
+		case '9':
+			return Integer.parseInt(s);
+		}
+		throw new NumberFormatException();
+	}
+	/**
 	 * permet de reconnaitre une instruction et la transforme en jeton
 	 * @param s la chaine a reconnaitre
 	 * @return l'instruction reconnue
