@@ -40,4 +40,49 @@ public class Reader {
 	{
 		return s.split("\n");
 	}
+	
+	/**
+	 * retire les commentaires de la chaine de caractere
+	 * dans cette fonction les commentaires commencent par # et ne font qu'une ligne
+	 * @param s la chaine a nettoyer
+	 * @return la chaine sans commentaires
+	 */
+	public static String unComment(String s)
+	{
+		s = s.trim();
+		if(!s.contains("#"))//si la chaine n'a pas de # elle n'a pas de commentaire
+			return s;
+		if(s.indexOf('#') == 0)//si la chaine commence par # elle est un commentaire
+			return "";
+		return s.split("#")[0];
+	}
+	
+	/**
+	 * retir toutes les chaines nulles ou vide d'un tableau de chaine
+	 * @param s le tableau de chaine a nettoyer
+	 * @return le tableau nettoyé
+	 */
+	public static String[] cleanTable(String[] s)
+	{
+		String[] res;
+		int n = 0;
+		for(int i = 0; i < s.length; i++)
+		{
+			if(s[i].isEmpty())
+				continue;
+			n++;
+		}
+		res = new String[n];
+		n = 0;
+		for(int i = 0; i < s.length; i++)
+		{
+			if(s[i].isEmpty())
+			{
+				n++;
+				continue;
+			}
+			res[i - n] = s[i];
+		}
+		return res;
+	}
 }
