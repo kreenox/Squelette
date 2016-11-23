@@ -45,16 +45,17 @@ public class Reader {
 	 * retire les commentaires de la chaine de caractere
 	 * dans cette fonction les commentaires commencent par # et ne font qu'une ligne
 	 * @param s la chaine a nettoyer
+	 * @param comm la chaine qui definit un commentaire
 	 * @return la chaine sans commentaires
 	 */
-	public static String unComment(String s)
+	public static String unComment(String s, String comm)
 	{
 		s = s.trim();
-		if(!s.contains("#"))//si la chaine n'a pas de # elle n'a pas de commentaire
+		if(!s.contains(comm))//si la chaine n'a pas de # elle n'a pas de commentaire
 			return s;
-		if(s.indexOf('#') == 0)//si la chaine commence par # elle est un commentaire
+		if(s.indexOf(comm) == 0)//si la chaine commence par # elle est un commentaire
 			return "";
-		return s.split("#")[0];
+		return s.split(comm)[0];
 	}
 	
 	/**
